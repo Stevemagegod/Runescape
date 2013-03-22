@@ -1,13 +1,17 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package Powerbot;
+import org.powerbot.core.script.ActiveScript;
+import org.powerbot.game.api.Manifest;
 
-/**
- *
- * @author Stephen
- */
-public class Skeleton {
-    
+@Manifest(authors = ("Graser"), name = "Skeleton", description = "Basic Powerbot Script Skeleton", version = 1)
+public class Skeleton extends ActiveScript {
+
+    /**
+	 * @param args
+	 */
+
+	@Override
+	public int loop() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }
