@@ -1,57 +1,155 @@
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+
+import org.powerbot.core.event.listeners.PaintListener;
 import org.powerbot.core.script.ActiveScript;
 import org.powerbot.game.api.Manifest;
-import org.powerbot.game.api.methods.Walking;
+import org.powerbot.game.api.methods.Game;
+import org.powerbot.game.api.methods.input.Mouse;
 import org.powerbot.game.api.methods.interactive.NPCs;
 import org.powerbot.game.api.methods.interactive.Players;
-import org.powerbot.game.api.wrappers.Tile;
+import org.powerbot.game.api.methods.node.GroundItems;
+import org.powerbot.game.api.methods.tab.Inventory;
+import org.powerbot.game.api.util.Timer;
+import org.powerbot.game.api.wrappers.node.Item;
 
-@Manifest(authors = ("Graser"), name = "Good Fight Goblins", description = "Kills Goblins", version = 2)
-public class GFGoblins extends ActiveScript {
+@Manifest(authors = ("Graser"), name = "Good Fight Goblins", description = "Kills Goblins", version = 3)
+public class GFGoblins extends ActiveScript implements PaintListener {
 
 	/**
-	 * @param args Untested
+	 * @param args
 	 */
-	
-	boolean weareinArea = false;
+
+	//Variables
 	boolean wearedead = false;
-	int Goblins = 0; //TODO
-	Tile[] DeathWalk = null; //TODO
+	String status;
+	public static final Timer t = new Timer(0);
+	public long startTime = System.currentTimeMillis();
+	int[] Goblins = {12353,12355,11236,1769,11240, 1770, 1771, 1772, 1773, 1774, 1775, 1776, 445, 444,6181,6180 };
+	int[] Lootid = {995,526,555,559};
+	int[] Junk = {1439,19830,288,2307,1277,1139,1949};
+	int[] Food = {1895, 1893, 1891, 4293, 2142, 291, 2140, 3228, 9980,
+			7223, 6297, 6293, 6295, 6299, 7521, 9988, 7228, 2878, 7568, 2343,
+			1861, 13433, 315, 325, 319, 3144, 347, 355, 333, 339, 351, 329,
+			3381, 361, 10136, 5003, 379, 365, 373, 7946, 385, 397, 391, 3369,
+			3371, 3373, 2309, 2325, 2333, 2327, 2331, 2323, 2335, 7178, 7180,
+			7188, 7190, 7198, 7200, 7208, 7210, 7218, 7220, 2003, 2011, 2289,
+			2291, 2293, 2295, 2297, 2299, 2301, 2303, 1891, 1893, 1895, 1897,
+			1899, 1901, 7072, 7062, 7078, 7064, 7084, 7082, 7066, 7068, 1942,
+			6701, 6703, 7054, 6705, 7056, 7060, 2130, 1985, 1993, 1989, 1978,
+			5763, 5765, 1913, 5747, 1905, 5739, 1909, 5743, 1907, 1911, 5745,
+			2955, 5749, 5751, 5753, 5755, 5757, 5759, 5761, 2084, 2034, 2048,
+			2036, 2217, 2213, 2205, 2209, 2054, 2040, 2080, 2277, 2225, 2255,
+			2221, 2253, 2219, 2281, 2227, 2223, 2191, 2233, 2092, 2032, 2074,
+			2030, 2281, 2235, 2064, 2028, 2187, 2185, 2229, 6883, 1971, 4608,1883, 1885,1982};
+	int Bone = 526;
+
+	public void onStart() {
+		if(Game.isLoggedIn()) //true if this client instance is logged in; otherwise false.
+			status="Hello";
+	}
+
+	public void onFinish() {
+		status="Thank You for using my Script";
+	}
 
 	@Override
 	public int loop() {
-		if(weareinArea) //if we are in the Goblin area
+		if(weareinArea()) //if we are in the Goblin area
 			NPCs.getNearest(Goblins);//we should get The nearest Goblin with one of these Ids if any present, else null.
-		if(NPCs.getNearest(Goblins).isOnScreen()) //Determines if this entity is on screen.
-			NPCs.getNearest(Goblins).click(true); //Clicks this entity.
+		status="We see the Goblins!";
+		if(NPCs.getNearest(Goblins).isOnScreen()) //Determines if the Goblin is on screen.
+			status="Were attacking them Now";
+		NPCs.getNearest(Goblins).interact("Attack"); //Attacks the Goblin.
+		sleep(700,800);
 		if(NPCs.getNearest(Goblins).isInCombat()) //if the Goblin is in Combat
-			try {
-				Players.getLocal().wait(); //we should try to wait until the Goblin is dead
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		do
-			if(NPCs.getNearest(Goblins).getInteracting() != null); //checks if goblins are interacting
-		while(Players.getLocal().isInCombat());  //while we are in combat
+			do
+				if(NPCs.getNearest(Goblins).getInteracting() != null); //checks if goblins are interacting
+			while(Players.getLocal().isInCombat());  //while we are in combat
 		Players.getLocal().getHealthPercent(); //we should be checking are health and 
-				if(Players.getLocal().getHealthPercent() <= 60) //if are health is less than 60 we need to eat
-			Eating(); //We should be Eating now
+		if(Players.getLocal().getHealthPercent() <= 60) //if are health is less than 60 we need to eat
+			Inventory.getItem(Food).getWidgetChild().click(true); //We should be Eating now
 		if(Players.getLocal().isIdle() && !Players.getLocal().isInCombat()) //If we are idle and we are not in Combat
 			Looting(); //We should be Looting
-		else
-			if(wearedead) //if we are dead
-				Walking.newTilePath(DeathWalk); //Walks back to Goblins from respawn point
 		return 0;
 	}
 
-	private void Eating() {
-		// TODO Auto-generated method stub
-		
+	private boolean weareinArea() {
+		return Players.getLocal().getLocation() != null;
 	}
 
 	private void Looting() {
-		// TODO Auto-generated method stub
-		
+		org.powerbot.game.api.wrappers.node.GroundItem items = GroundItems.getNearest(Lootid);
+		if(items != null) //Null Check
+		{
+			if(items.isOnScreen()) //Determines if the item is on screen.
+			{
+				status ="Looting";
+				items.click(true);
+				sleep(800,1000);
+				if(Inventory.isFull() //Checks whether the inventory is full. 
+						&& Inventory.getItem(Junk).getWidgetChild().interact("Drop")) //And if Inventory contains junk we need to drop it 
+					BuryBones();
+			}
+		}
+	}
+
+	private void BuryBones() //Simple for loop most of it is self explanitory
+	{
+		for (Item i : Inventory.getItems()) {
+			if (i.getId() == Bone) {
+				status ="Burying Bones";
+				i.getWidgetChild().click(true);
+				sleep(850, 1550);
+			}
+		}
+	}
+
+	private final Color color1 = new Color(0, 0, 0);
+	private final Color color2 = new Color(0, 204, 255);
+	private final Color color3 = new Color(0, 255, 0);
+	private final Font font1 = new Font("Cambria", 1, 20);
+	private final Font font2 = new Font("Cambria", 1, 17);
+
+	@Override
+	public void onRepaint(Graphics g1) {
+		Graphics2D g = (Graphics2D)g1;
+		long millis = System.currentTimeMillis() - startTime;
+		long hours = millis / (1000 * 60 * 60);
+		millis -= hours * (1000 * 60 * 60); long minutes = millis / (1000 * 60);
+		millis -= minutes * (1000 * 60); long seconds = millis / 1000;
+		g.setColor(color1);
+		g.fillRect(3, 314, 515, 160);
+		g.setColor(color2);
+		g.fillRect(20, 333, 478, 124);
+		g.setFont(font1);
+		g.setColor(color1);
+		g.drawString("Good Fight Goblins by: Xianb", 36, 412);
+		g.drawString("Time running: " +hours + ":" +minutes + ":" +seconds , 34, 367);
+		g.drawString("Status: "+status , 35, 444);
+		g.setFont(font2);
+		g.setColor(color3);
+		g.fillRoundRect(19, 323, 491, 3, 16, 16);
+		g.fillRoundRect(9, 331, 4, 125, 16, 16);
+		g.fillRoundRect(21, 462, 478, 6, 16, 16);
+		g.fillRoundRect(503, 340, 7, 120, 16, 16);
+		g.setColor(color1);
+		Point p = Mouse.getLocation();
+		Dimension d = Game.getDimensions();
+		int w = (int) d.getWidth(), h = (int) d.getHeight();
+		g.setColor(Color.lightGray);
+		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+				0.1f));
+		g.fillRect(0, 0, p.x - 1, p.y - 1);
+		g.fillRect(p.x + 1, 0, w - (p.x + 1), p.y - 1);
+		g.fillRect(0, p.y + 1, p.x - 1, h - (p.y - 1));
+		g.fillRect(p.x + 1, p.y + 1, w - (p.x + 1), h - (p.y - 1));
+
 	}
 
 }
