@@ -21,6 +21,7 @@ import org.powerbot.game.api.methods.widget.Camera;
 import org.powerbot.game.api.util.Timer;
 import org.powerbot.game.api.wrappers.Area;
 import org.powerbot.game.api.wrappers.Tile;
+import org.powerbot.game.api.wrappers.node.GroundItem;
 import org.powerbot.game.api.wrappers.node.Item;
 
 @Manifest(authors = ("Graser"), name = "Good Fight Goblins", description = "Kills Goblins", version = 2)
@@ -34,6 +35,7 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 	String status;
 	public static final Timer t = new Timer(0);
 	public long startTime = System.currentTimeMillis();
+	int[] DeathAnimation={836};
 	int[] Goblins = {12353,12355,11236,1769,11240, 1770, 1771, 1772, 1773, 1774, 1775, 1776, 445, 444,6181,6180 };
 	int[] Lootid = {995,526,555,559};
 	int[] Junk = {1439,19830,288,2307,1277,1139,1949};
@@ -52,7 +54,6 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 			2221, 2253, 2219, 2281, 2227, 2223, 2191, 2233, 2092, 2032, 2074,
 			2030, 2281, 2235, 2064, 2028, 2187, 2185, 2229, 6883, 1971, 4608,1883, 1885,1982};
 	int Bone = 526;
-	boolean DeathAnimation = false;
 	
 	//Walking Variables
 	Tile[] path = { new Tile(3220, 3218, 0), new Tile(3228, 3219, 0), new Tile(3234, 3224, 0),new Tile(3240, 3226, 0), new Tile(3248, 3226, 0), new Tile(3247, 3232, 0),new Tile(3249, 3238, 0) };
@@ -86,11 +87,11 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 		else
 			if(wearedead())
 				Walking.newTilePath(path).traverse();
-		return 0;
+		return 1;
 	}
 
 	private boolean wearedead() {
-		return DeathAnimation;
+		return DeathAnimation != null;
 	}
 
 	private void Eating() {
@@ -161,9 +162,9 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 	}
 
 	private void Looting() {
-		org.powerbot.game.api.wrappers.node.GroundItem Loot = GroundItems.getNearest(Lootid);
-           if(Loot != null) {
-              if(Loot.isOnScreen()){
+		GroundItem Loot = GroundItems.getNearest(Lootid);
+		if(!Inventory.isFull())
+           if(Loot != null && Loot.isOnScreen()) {
                  status ="Looting";
                  Loot.interact("Take");
                 sleep(800,1000);
@@ -172,7 +173,6 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 					BuryBones();
 			}
 		}
-	}
 
 	private void BuryBones() 
 	{
