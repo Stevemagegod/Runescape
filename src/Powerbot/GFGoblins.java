@@ -8,17 +8,22 @@ import java.awt.Point;
 
 import org.powerbot.core.event.listeners.PaintListener;
 import org.powerbot.core.script.ActiveScript;
+import org.powerbot.core.script.util.Random;
 import org.powerbot.game.api.Manifest;
 import org.powerbot.game.api.methods.Game;
+import org.powerbot.game.api.methods.Walking;
 import org.powerbot.game.api.methods.input.Mouse;
 import org.powerbot.game.api.methods.interactive.NPCs;
 import org.powerbot.game.api.methods.interactive.Players;
 import org.powerbot.game.api.methods.node.GroundItems;
 import org.powerbot.game.api.methods.tab.Inventory;
+import org.powerbot.game.api.methods.widget.Camera;
 import org.powerbot.game.api.util.Timer;
+import org.powerbot.game.api.wrappers.Area;
+import org.powerbot.game.api.wrappers.Tile;
 import org.powerbot.game.api.wrappers.node.Item;
 
-@Manifest(authors = ("Graser"), name = "Good Fight Goblins", description = "Kills Goblins", version = 3)
+@Manifest(authors = ("Graser"), name = "Good Fight Goblins", description = "Kills Goblins", version = 2)
 public class GFGoblins extends ActiveScript implements PaintListener {
 
 	/**
@@ -26,7 +31,6 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 	 */
 
 	//Variables
-	boolean wearedead = false;
 	String status;
 	public static final Timer t = new Timer(0);
 	public long startTime = System.currentTimeMillis();
@@ -48,6 +52,11 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 			2221, 2253, 2219, 2281, 2227, 2223, 2191, 2233, 2092, 2032, 2074,
 			2030, 2281, 2235, 2064, 2028, 2187, 2185, 2229, 6883, 1971, 4608,1883, 1885,1982};
 	int Bone = 526;
+	boolean DeathAnimation = false;
+	
+	//Walking Variables
+	Tile[] path = { new Tile(3220, 3218, 0), new Tile(3228, 3219, 0), new Tile(3234, 3224, 0),new Tile(3240, 3226, 0), new Tile(3248, 3226, 0), new Tile(3247, 3232, 0),new Tile(3249, 3238, 0) };
+	Area goblins = new Area(new Tile[] { new Tile(3241, 3231, 0), new Tile(3241, 3248, 0), new Tile(3262, 3248, 0),new Tile(3262, 3231, 0) });
 
 	public void onStart() {
 		if(Game.isLoggedIn()) //true if this client instance is logged in; otherwise false.
@@ -60,38 +69,104 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 
 	@Override
 	public int loop() {
+		if(!Game.isLoggedIn()) {
+			log.info("NOT logged in...waiting 15 seconds.");
+			return 15000;
+		}
+		Antiban();
 		if(weareinArea()) //if we are in the Goblin area
-			NPCs.getNearest(Goblins);//we should get The nearest Goblin with one of these Ids if any present, else null.
-		status="We see the Goblins!";
-		if(NPCs.getNearest(Goblins).isOnScreen()) //Determines if the Goblin is on screen.
-			status="Were attacking them Now";
-		NPCs.getNearest(Goblins).interact("Attack"); //Attacks the Goblin.
-		sleep(700,800);
+			Attack();
 		if(NPCs.getNearest(Goblins).isInCombat()) //if the Goblin is in Combat
 			do
 				if(NPCs.getNearest(Goblins).getInteracting() != null); //checks if goblins are interacting
 			while(Players.getLocal().isInCombat());  //while we are in combat
-		Players.getLocal().getHealthPercent(); //we should be checking are health and 
-		if(Players.getLocal().getHealthPercent() <= 60) //if are health is less than 60 we need to eat
-			Inventory.getItem(Food).getWidgetChild().click(true); //We should be Eating now
+		Eating();
 		if(Players.getLocal().isIdle() && !Players.getLocal().isInCombat()) //If we are idle and we are not in Combat
 			Looting(); //We should be Looting
+		else
+			if(wearedead())
+				Walking.newTilePath(path).traverse();
 		return 0;
 	}
 
+	private boolean wearedead() {
+		return DeathAnimation;
+	}
+
+	private void Eating() {
+		Players.getLocal().getHealthPercent(); //we should be checking are health and 
+		if(Players.getLocal().getHealthPercent() <= 60) //if are health is less than 60 we need to eat
+			Inventory.getItem(Food).getWidgetChild().click(true); //We should be Eating now
+	}
+
+	private void Antiban() {
+		//Max and Min Time
+				int minMilliSecond = 500;
+				int maxMillisecond = 50000;
+				sleep(Random.nextInt(minMilliSecond, maxMillisecond));
+				status="move mouse";
+				//randomly generated numbers for mouse
+				int x=Random.nextInt(1,450);
+				int y=Random.nextInt(1,450);
+				int randomX= Random.nextInt(1,300);
+				int randomY=Random.nextInt(1,300);
+				Mouse.move(x,y,randomX,randomY);
+
+				int ii=Random.nextInt(1,20);
+				switch (ii){
+				case 1:
+					status="Seting Angle";
+					Camera.setAngle(Random.nextInt(1, 450));
+					break;
+				case 2:
+					status="Seting Pitch";
+					Camera.setPitch(Random.nextInt(1, 450));
+					break;
+
+				case 3:
+					status="Seting Angle & Seting Pitch";
+					Camera.setAngle(Random.nextInt(10, 500));
+					Camera.setPitch(Random.nextInt(10, 500));
+					break;
+				case 4:
+					status="Seting Angle";
+					Camera.setAngle(Random.nextInt(20, 300));
+					break;
+				case 5:
+					status="Moveing Mouse Randomly";
+					Mouse.move(Random.nextInt(Mouse.getLocation().x - 150,
+							Mouse.getLocation().x + 150),
+							Random.nextInt(Mouse.getLocation().y - 150,
+									Mouse.getLocation().y + 150));
+					break;
+
+				default:
+					break;
+				}
+
+			}
+
+	private void Attack() {
+		NPCs.getNearest(Goblins);//we should get The nearest Goblin with one of these Ids if any present, else null.
+			status="We see the Goblins!";
+		if(NPCs.getNearest(Goblins).isOnScreen()) //Determines if the Goblin is on screen.
+			status="Were attacking them Now";
+		NPCs.getNearest(Goblins).interact("Attack"); //Attacks the Goblin.
+		sleep(700,800);
+		
+	}
+
 	private boolean weareinArea() {
-		return Players.getLocal().getLocation() != null;
+		return goblins.contains(Players.getLocal().getLocation()); //Determines whether at least one of the given tiles is contained in this area.
 	}
 
 	private void Looting() {
-		org.powerbot.game.api.wrappers.node.GroundItem items = GroundItems.getNearest(Lootid);
-		if(items != null) //Null Check
-		{
-			if(items.isOnScreen()) //Determines if the item is on screen.
-			{
-				status ="Looting";
-				items.click(true);
-				sleep(800,1000);
+		org.powerbot.game.api.wrappers.node.GroundItem Loot = GroundItems.getNearest(Lootid);
+           if(Loot != null) {
+              if(Loot.isOnScreen()){
+                 status ="Looting";
+                 Loot.interact("Take");
+                sleep(800,1000);
 				if(Inventory.isFull() //Checks whether the inventory is full. 
 						&& Inventory.getItem(Junk).getWidgetChild().interact("Drop")) //And if Inventory contains junk we need to drop it 
 					BuryBones();
@@ -99,15 +174,15 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 		}
 	}
 
-	private void BuryBones() //Simple for loop most of it is self explanitory
+	private void BuryBones() 
 	{
 		for (Item i : Inventory.getItems()) {
-			if (i.getId() == Bone) {
-				status ="Burying Bones";
-				i.getWidgetChild().click(true);
-				sleep(850, 1550);
-			}
-		}
+            if (i.getId() == Bone) {
+                status ="Burying Bones";
+                i.getWidgetChild().interact("Bury");
+                sleep(850, 1550);
+            }
+        }
 	}
 
 	private final Color color1 = new Color(0, 0, 0);
