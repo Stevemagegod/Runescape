@@ -8,7 +8,7 @@ import java.awt.Point;
 
 import org.powerbot.core.event.listeners.PaintListener;
 import org.powerbot.core.script.ActiveScript;
-import org.powerbot.core.script.util.Random;
+import org.powerbot.core.script.job.Task;
 import org.powerbot.game.api.Manifest;
 import org.powerbot.game.api.methods.Game;
 import org.powerbot.game.api.methods.Walking;
@@ -24,7 +24,7 @@ import org.powerbot.game.api.wrappers.Tile;
 import org.powerbot.game.api.wrappers.node.GroundItem;
 import org.powerbot.game.api.wrappers.node.Item;
 
-@Manifest(authors = ("Graser"), name = "Good Fight Goblins", description = "Kills Goblins", version = 2)
+@Manifest(authors = ("Graser"), name = "Good Fight Goblins", description = "Kills Goblins", version = 5)
 public class GFGoblins extends ActiveScript implements PaintListener {
 
 	/**
@@ -33,12 +33,12 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 
 	//Variables
 	String status;
+	Timer wait = new Timer(3000); //Dynamic Sleep
 	public static final Timer t = new Timer(0);
 	public long startTime = System.currentTimeMillis();
-	int[] DeathAnimation={836};
-	int[] Goblins = {12353,12355,11236,1769,11240, 1770, 1771, 1772, 1773, 1774, 1775, 1776, 445, 444,6181,6180 };
-	int[] Lootid = {995,526,555,559};
-	int[] Junk = {1439,19830,288,2307,1277,1139,1949};
+	int[] Goblins = {12353,12355,11236,1769,11240, 1770, 1771, 1772,12352, 1773, 1774, 1775, 1776, 445, 444,6181,6180,1438 };
+	int[] Lootid = {995,526,555,558,559,877,554,886};
+	int[] Junk = {1439,19830,288,2307,1277,1139,1949,1511,25547,9054,1351,2132};
 	int[] Food = {1895, 1893, 1891, 4293, 2142, 291, 2140, 3228, 9980,
 			7223, 6297, 6293, 6295, 6299, 7521, 9988, 7228, 2878, 7568, 2343,
 			1861, 13433, 315, 325, 319, 3144, 347, 355, 333, 339, 351, 329,
@@ -62,6 +62,11 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 	public void onStart() {
 		if(Game.isLoggedIn()) //true if this client instance is logged in; otherwise false.
 			status="Hello";
+		else
+			if(!Game.isLoggedIn()) {
+				log.info("NOT logged in");
+				stop();
+			}
 	}
 
 	public void onFinish() {
@@ -70,119 +75,72 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 
 	@Override
 	public int loop() {
-		if(!Game.isLoggedIn()) {
-			log.info("NOT logged in...waiting 15 seconds.");
-			return 15000;
+		if(weareinArea())
+		Attack();
+		if(Players.getLocal().getInteracting() != null)
+			Players.getLocal().validate();
+		Looting();
+		if(Inventory.getCount()==28)
+			Bury(); 
+		return 150;
 		}
-		Antiban();
-		if(weareinArea()) //if we are in the Goblin area
-			Attack();
-		if(NPCs.getNearest(Goblins).isInCombat()) //if the Goblin is in Combat
-			do
-				if(NPCs.getNearest(Goblins).getInteracting() != null); //checks if goblins are interacting
-			while(Players.getLocal().isInCombat());  //while we are in combat
-		Eating();
-		if(Players.getLocal().isIdle() && !Players.getLocal().isInCombat()) //If we are idle and we are not in Combat
-			Looting(); //We should be Looting
-		else
-			if(wearedead())
-				Walking.newTilePath(path).traverse();
-		return 1;
-	}
 
-	private boolean wearedead() {
-		return DeathAnimation != null;
-	}
+	private void Bury() {
+            for (Item i : Inventory.getItems()) {
+                    if (i.getId() == Bone) {
+                            status = "Burying Bones";
+                            i.getWidgetChild().click(true);
+                            sleep(300);
+                    }
+                    if(Inventory.contains(Junk))
+                    Inventory.getItem(Junk).getWidgetChild().interact("Drop");
+            }
 
-	private void Eating() {
-		Players.getLocal().getHealthPercent(); //we should be checking are health and 
-		if(Players.getLocal().getHealthPercent() <= 60) //if are health is less than 60 we need to eat
-			Inventory.getItem(Food).getWidgetChild().click(true); //We should be Eating now
-	}
-
-	private void Antiban() {
-		//Max and Min Time
-				int minMilliSecond = 500;
-				int maxMillisecond = 50000;
-				sleep(Random.nextInt(minMilliSecond, maxMillisecond));
-				status="move mouse";
-				//randomly generated numbers for mouse
-				int x=Random.nextInt(1,450);
-				int y=Random.nextInt(1,450);
-				int randomX= Random.nextInt(1,300);
-				int randomY=Random.nextInt(1,300);
-				Mouse.move(x,y,randomX,randomY);
-
-				int ii=Random.nextInt(1,20);
-				switch (ii){
-				case 1:
-					status="Seting Angle";
-					Camera.setAngle(Random.nextInt(1, 450));
-					break;
-				case 2:
-					status="Seting Pitch";
-					Camera.setPitch(Random.nextInt(1, 450));
-					break;
-
-				case 3:
-					status="Seting Angle & Seting Pitch";
-					Camera.setAngle(Random.nextInt(10, 500));
-					Camera.setPitch(Random.nextInt(10, 500));
-					break;
-				case 4:
-					status="Seting Angle";
-					Camera.setAngle(Random.nextInt(20, 300));
-					break;
-				case 5:
-					status="Moveing Mouse Randomly";
-					Mouse.move(Random.nextInt(Mouse.getLocation().x - 150,
-							Mouse.getLocation().x + 150),
-							Random.nextInt(Mouse.getLocation().y - 150,
-									Mouse.getLocation().y + 150));
-					break;
-
-				default:
-					break;
-				}
-
-			}
+}
 
 	private void Attack() {
-		NPCs.getNearest(Goblins);//we should get The nearest Goblin with one of these Ids if any present, else null.
-			status="We see the Goblins!";
-		if(NPCs.getNearest(Goblins).isOnScreen()) //Determines if the Goblin is on screen.
-			status="Were attacking them Now";
-		NPCs.getNearest(Goblins).interact("Attack"); //Attacks the Goblin.
-		sleep(700,800);
-		
-	}
-
-	private boolean weareinArea() {
-		return goblins.contains(Players.getLocal().getLocation()); //Determines whether at least one of the given tiles is contained in this area.
-	}
-
-	private void Looting() {
-		GroundItem Loot = GroundItems.getNearest(Lootid);
-		if(!Inventory.isFull())
-           if(Loot != null && Loot.isOnScreen()) {
-                 status ="Looting";
-                 Loot.interact("Take");
-                sleep(800,1000);
-				if(Inventory.isFull() //Checks whether the inventory is full. 
-						&& Inventory.getItem(Junk).getWidgetChild().interact("Drop")) //And if Inventory contains junk we need to drop it 
-					BuryBones();
+		if (!Players.getLocal().isInCombat()) {
+			status="Looking for Goblins!";
+			NPCs.getNearest(Goblins);
+			status="We See the Goblins!";
+			if(NPCs.getNearest(Goblins).isOnScreen()) {
+				if(!NPCs.getNearest(Goblins).isInCombat() & !Players.getLocal().isInCombat()){
+					status="We Should Be Attacking them Now";
+					NPCs.getNearest(Goblins).interact("Attack"); //Attacks the Goblin.
+					sleep(2500);
+				}
+				else if(!NPCs.getNearest(Goblins).isOnScreen()) {
+							Camera.setPitch(75);
+						}
+				}
 			}
 		}
 
-	private void BuryBones() 
-	{
-		for (Item i : Inventory.getItems()) {
-            if (i.getId() == Bone) {
-                status ="Burying Bones";
-                i.getWidgetChild().interact("Bury");
-                sleep(850, 1550);
-            }
-        }
+	private void Looting() {
+		GroundItem loot = GroundItems.getNearest(Lootid);
+		if (loot != null) {
+			if (loot.isOnScreen()) {
+				if (loot.getLocation().canReach()) {
+					Camera.turnTo(loot);
+					boolean left = true;
+					loot.click(left);
+					Task.sleep(500, 650);
+					if (Players.getLocal().isMoving()) {
+						while (Players.getLocal().isMoving()) {
+							Task.sleep(10, 30);
+						}
+					}
+				}
+			} else {
+				Walking.walk(loot.getLocation());
+				Camera.turnTo(loot.getLocation());
+			}
+		}
+	}
+
+		private boolean weareinArea() {
+		status="We are in the Goblins Area";
+		return goblins.contains(Players.getLocal().getLocation()); //Determines whether at least one of the given tiles is contained in this area.
 	}
 
 	private final Color color1 = new Color(0, 0, 0);
@@ -224,6 +182,7 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 		g.fillRect(p.x + 1, 0, w - (p.x + 1), p.y - 1);
 		g.fillRect(0, p.y + 1, p.x - 1, h - (p.y - 1));
 		g.fillRect(p.x + 1, p.y + 1, w - (p.x + 1), h - (p.y - 1));
+		g.translate(0,50); //From Kirinsoul
 
 	}
 
