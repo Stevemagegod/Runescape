@@ -122,6 +122,7 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 			if (loot.isOnScreen()) {
 				if (loot.getLocation().canReach()) {
 					Camera.turnTo(loot);
+					status="Looting";
 					boolean left = true;
 					loot.click(left);
 					Task.sleep(500, 650);
