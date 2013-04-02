@@ -7,15 +7,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.image.RenderedImage;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -125,43 +116,34 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 		if (Game.isLoggedIn())
 			status = "Hello";
 		getCurrentLifepoints();
+		ClaimTicket();
 		if (!Game.isLoggedIn()) {
 			log.info("NOT logged in");
 			stop();
 		}
 	}
 
+	private void ClaimTicket() {
+		status="Scanning claim";
+		if(Inventory.getCount(24154) > 0);
+			final Item item = Inventory.getItem(24154);
+        if (item != null && item.getWidgetChild().click(true)) {
+                final Timer t = new Timer(2500);
+                while (t.isRunning() && Inventory.getCount(24154) > 0) {
+                        sleep(50);
+                }
+        }
+}
+
 	public void onFinish() {
 		status = "Thank You for using my Script";
-		//sleep(Random.nextInt(600, 1000));
-		try {
-            	status="Sending Proggie. Please Wait.";
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    RenderedImage image = null;
-					ImageIO.write(image, "png", baos);
-                    @SuppressWarnings("deprecation")
-					String imageData = URLEncoder.encode("image", "UTF-8") + "=" + URLEncoder.encode("UTF-8");
-                    imageData += "&" + URLEncoder.encode("time", "UTF-8") + "=";
-                    URL server = new URL("http://tfighter.pcriot.com/sc.php");
-                    URLConnection conn = server.openConnection();
-                    conn.setRequestProperty("User-Agent", "TFighter");
-                    conn.setDoOutput(true);
-                    OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-                    wr.write(imageData);
-                    wr.flush();
-
-                    BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                    while((rd.readLine()) != null) {
-                            status="line";
-                    }
-    } catch (Exception e) {
-    	status="Failure: " + e.getMessage();
-    }
+		sleep(Random.nextInt(600, 1000));
     }
 
 	@Override
 	public int loop() {
-		Walking.getEnergy(); {
+		if(isRunEnabled()) {
+		Walking.getEnergy(); 
 		if (weareinArea() && Walking.getEnergy() >= 10)
 			Walking.setRun(true);
 		}
@@ -192,6 +174,7 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 }
 
 	private void DrinkPot() {
+		//TODO
 	}
 
 	private void SpecialAttack() {
@@ -426,6 +409,11 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 		status = "Getting Adrenaline";
 		return Settings.get(679) / 10;
 	}
+	
+	private boolean isRunEnabled() {
+		status="Checking if Run is Enabled";
+        return Settings.get(463) != 0;
+}
 
 	private int getCurrentLifepoints() {
 		sleep(Random.nextInt(500, 1000));
