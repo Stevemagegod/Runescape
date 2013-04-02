@@ -91,6 +91,9 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 	public int SummonPot[] = {12146, 12144, 12142, 12140};
     public int PrayerRenewalPot[] = {21636, 21634, 21632, 21630, 23619, 23617, 23615, 23613, 23611, 23609};
     private final int[][] PotionArray={PrayerPot, AttackPot, StrengthPot, DefencePot, OverLoadPot, SummonPot, PrayerRenewalPot};
+    public static final int[] COOLDOWN_CHILD = {36, 73, 77, 81, 85, 89, 93, 97, 101, 105, 109, 113},ITEM_CHILD = {32, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112};
+    public static final String[] NPCS = { "", "", "", "", "", "", "", "", "", "", "" };
+    int[] NPC_LEVELS = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
 	public void onStart() {
 		try {
@@ -121,6 +124,9 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 			log.info("NOT logged in");
 			stop();
 		}
+	}
+	
+	public void GetEnemyMonsters() {
 	}
 
 	private void ClaimTicket() {
@@ -230,23 +236,16 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 
 	}
 
-	@SuppressWarnings({ "deprecation" })
 	private void Eating() {
-		if (Players.getLocal().getHpPercent() < 40)
-			if (useFood) {
-				if (Inventory.contains(Food)) {
+		if (Players.getLocal().getHealthPercent() < 40 && Inventory.contains(Food))
+			while(Inventory.getItem(Food) != null) {
+				if(Players.getLocal().getAnimation() == -1 && !Players.getLocal().isMoving()) {
 					status = "Eating";
 					Inventory.getItem(Food).getWidgetChild().interact("Eat");
-					Task.sleep(1000, 1500);
-				} else {
-					status = "Fuck out of Food";
-					shutdown();
+					sleep(750, 1000);
 				}
-			} else {
-				status = "Need food but not using food!";
-				shutdown();
 			}
-	}
+		}
 
 	private void BuryandDrop() {
 		for (Item i : Inventory.getItems()) {
