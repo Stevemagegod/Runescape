@@ -176,6 +176,7 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 		}
 	}
 
+	//Auto Generated Paint
 	private final Color color1 = new Color(0, 0, 0);
 	private final Color color2 = new Color(0, 204, 255);
 	private final Color color3 = new Color(0, 255, 0);
@@ -213,8 +214,7 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 		Dimension d = Game.getDimensions();
 		int w = (int) d.getWidth(), h = (int) d.getHeight();
 		g.setColor(Color.lightGray);
-		g.setComposite(AlphaComposite
-				.getInstance(AlphaComposite.SRC_OVER, 0.1f));
+		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.1f));
 		g.fillRect(0, 0, p.x - 1, p.y - 1);
 		g.fillRect(p.x + 1, 0, w - (p.x + 1), p.y - 1);
 		g.fillRect(0, p.y + 1, p.x - 1, h - (p.y - 1));
@@ -222,41 +222,30 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 		g.translate(0, 50); 
 	}
 
+	//Credits to Member Magic from Rarebot
 	private void drawMouse(Graphics g) {
-		((Graphics2D) g).setRenderingHints(new RenderingHints(
-				RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON));
+		((Graphics2D) g).setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON));
 		Point p = Mouse.getLocation();
 		Graphics2D spinG = (Graphics2D) g.create();
 		Graphics2D spinGRev = (Graphics2D) g.create();
 		Graphics2D spinG2 = (Graphics2D) g.create();
 		spinG.setColor(MOUSE_BORDER_COLOR);
 		spinGRev.setColor(MOUSE_COLOR);
-		spinG.rotate(System.currentTimeMillis() % 2000d / 2000d * (360d) * 2
-				* Math.PI / 180.0, p.x, p.y);
-		spinGRev.rotate(System.currentTimeMillis() % 2000d / 2000d * (-360d)
-				* 2 * Math.PI / 180.0, p.x, p.y);
+		spinG.rotate(System.currentTimeMillis() % 2000d / 2000d * (360d) * 2* Math.PI / 180.0, p.x, p.y);
+		spinGRev.rotate(System.currentTimeMillis() % 2000d / 2000d * (-360d)* 2 * Math.PI / 180.0, p.x, p.y);
 		final int outerSize = 20;
 		final int innerSize = 12;
-		spinG.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_ROUND,
-				BasicStroke.JOIN_ROUND));
-		spinGRev.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_ROUND,
-				BasicStroke.JOIN_ROUND));
-		spinG.drawArc(p.x - (outerSize / 2), p.y - (outerSize / 2), outerSize,
-				outerSize, 100, 75);
-		spinG.drawArc(p.x - (outerSize / 2), p.y - (outerSize / 2), outerSize,
-				outerSize, -100, 75);
-		spinGRev.drawArc(p.x - (innerSize / 2), p.y - (innerSize / 2),
-				innerSize, innerSize, 100, 75);
-		spinGRev.drawArc(p.x - (innerSize / 2), p.y - (innerSize / 2),
-				innerSize, innerSize, -100, 75);
+		spinG.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
+		spinGRev.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
+		spinG.drawArc(p.x - (outerSize / 2), p.y - (outerSize / 2), outerSize,outerSize, 100, 75);
+		spinG.drawArc(p.x - (outerSize / 2), p.y - (outerSize / 2), outerSize,outerSize, -100, 75);
+		spinGRev.drawArc(p.x - (innerSize / 2), p.y - (innerSize / 2),innerSize, innerSize, 100, 75);
+		spinGRev.drawArc(p.x - (innerSize / 2), p.y - (innerSize / 2),innerSize, innerSize, -100, 75);
 		g.setColor(MOUSE_CENTER_COLOR);
 		g.fillOval(p.x, p.y, 2, 2);
 		spinG2.setColor(MOUSE_CENTER_COLOR);
-		spinG2.rotate(System.currentTimeMillis() % 2000d / 2000d * 360d
-				* Math.PI / 180.0, p.x, p.y);
-		spinG2.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_ROUND,
-				BasicStroke.JOIN_ROUND));
+		spinG2.rotate(System.currentTimeMillis() % 2000d / 2000d * 360d* Math.PI / 180.0, p.x, p.y);
+		spinG2.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
 		spinG2.drawLine(p.x - 5, p.y, p.x + 5, p.y);
 		spinG2.drawLine(p.x, p.y - 5, p.x, p.y + 5);
 	}
