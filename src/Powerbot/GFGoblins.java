@@ -41,15 +41,10 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 	 */
 
 	// Variables
-	public String[] NPC_ARRAY;
-	public String[] LOOT_ARRAY;
-	String curBotStatus;
 	static String status;
 	private static final Color MOUSE_COLOR = new Color(0, 255, 255),
 			MOUSE_BORDER_COLOR = new Color(220, 220, 220),
 			MOUSE_CENTER_COLOR = new Color(89, 255, 89);
-	boolean useFood = false;
-	boolean DroppingJunk = false;
 	Timer wait = new Timer(3000); // Dynamic Sleep
 	Random randomGen = new Random();
 	public static final Timer t = new Timer(0);
@@ -83,17 +78,6 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 	Area goblins = new Area(new Tile[] { new Tile(3241, 3231, 0),
 			new Tile(3241, 3248, 0), new Tile(3262, 3248, 0),
 			new Tile(3262, 3231, 0) });
-	public int[] PrayerPot = {143, 141, 139, 2434, 15331, 15330, 15329, 15328, 23253, 23251, 23249, 23247, 23245, 23243, 23530, 23529, 23528, 23527, 23526, 23525};
-	public int AttackPot[] = {149, 147, 145, 2436, 15311, 15310, 15309, 15308,  23265,  23263,  23261,  23259,  23257,  23255, 23500,  23499,  23498,  23497,  23496,  23495};
-	public int StrengthPot[] = {161, 159, 157, 2440, 15315, 15314, 15313, 15312, 23289, 23287, 23285, 23283, 23281, 23279, 23506, 23505, 23504, 23503, 23502, 23501};
-	public int DefencePot[] = {167, 165, 163, 2442, 15319, 15318, 15317, 15316, 23301, 23299, 23297, 23295, 23293, 23291, 23512, 23510, 23509, 23508, 23507};
-	public int OverLoadPot[] = {15335, 15334, 15333, 15332, 23536, 23535, 23534, 23533, 23532, 23531};
-	public int SummonPot[] = {12146, 12144, 12142, 12140};
-    public int PrayerRenewalPot[] = {21636, 21634, 21632, 21630, 23619, 23617, 23615, 23613, 23611, 23609};
-    private final int[][] PotionArray={PrayerPot, AttackPot, StrengthPot, DefencePot, OverLoadPot, SummonPot, PrayerRenewalPot};
-    public static final int[] COOLDOWN_CHILD = {36, 73, 77, 81, 85, 89, 93, 97, 101, 105, 109, 113},ITEM_CHILD = {32, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112};
-    public static final String[] NPCS = { "", "", "", "", "", "", "", "", "", "", "" };
-    int[] NPC_LEVELS = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
 	public void onStart() {
 		try {
@@ -127,6 +111,7 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 	}
 	
 	public void GetEnemyMonsters() {
+		//TODO
 	}
 
 	private void ClaimTicket() {
@@ -441,10 +426,6 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 			return chat.getText().toLowerCase().contains("enter to chat");
 		}
 		return false;
-	}
-
-	public int[][] getPotionArray() {
-		return PotionArray;
 	}
 
 	/**
