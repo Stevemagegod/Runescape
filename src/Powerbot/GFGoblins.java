@@ -24,7 +24,7 @@ import org.powerbot.game.api.util.Timer;
 import org.powerbot.game.api.wrappers.node.GroundItem;
 import org.powerbot.game.api.wrappers.node.Item;
 
-@Manifest(authors = ("Graser"), name = "Good Fight Goblins", description = "Kills Goblins", version = 15)
+@Manifest(authors = ("Graser"), name = "Good Fight Goblins", description = "Kills Goblins", version = 16)
 public class GFGoblins extends ActiveScript implements PaintListener {
 
 	/**
@@ -82,7 +82,6 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 
 	public void onFinish() {
 		status = "Thank You for using my Script";
-		sleep(Random.nextInt(600, 1000));
     }
 
 	@Override
