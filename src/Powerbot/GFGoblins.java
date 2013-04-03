@@ -12,7 +12,6 @@ import org.powerbot.core.script.ActiveScript;
 import org.powerbot.core.script.job.Task;
 import org.powerbot.game.api.Manifest;
 import org.powerbot.game.api.methods.Game;
-import org.powerbot.game.api.methods.Settings;
 import org.powerbot.game.api.methods.Walking;
 import org.powerbot.game.api.methods.input.Mouse;
 import org.powerbot.game.api.methods.interactive.NPCs;
@@ -22,12 +21,10 @@ import org.powerbot.game.api.methods.tab.Inventory;
 import org.powerbot.game.api.methods.widget.Camera;
 import org.powerbot.game.api.util.Random;
 import org.powerbot.game.api.util.Timer;
-import org.powerbot.game.api.wrappers.Area;
-import org.powerbot.game.api.wrappers.Tile;
 import org.powerbot.game.api.wrappers.node.GroundItem;
 import org.powerbot.game.api.wrappers.node.Item;
 
-@Manifest(authors = ("Graser"), name = "Good Fight Goblins", description = "Kills Goblins", version = 9)
+@Manifest(authors = ("Graser"), name = "Good Fight Goblins", description = "Kills Goblins", version = 15)
 public class GFGoblins extends ActiveScript implements PaintListener {
 
 	/**
@@ -36,17 +33,15 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 
 	// Variables
 	static String status;
-	private static final Color MOUSE_COLOR = new Color(0, 255, 255),
-			MOUSE_BORDER_COLOR = new Color(220, 220, 220),
-			MOUSE_CENTER_COLOR = new Color(89, 255, 89);
+	private static final Color MOUSE_COLOR = new Color(0, 255, 255),MOUSE_BORDER_COLOR = new Color(220, 220, 220),MOUSE_CENTER_COLOR = new Color(89, 255, 89);
 	Timer wait = new Timer(3000); // Dynamic Sleep
 	public static final Timer t = new Timer(0);
 	public long startTime = System.currentTimeMillis();
-	int[] Goblins = { 12353, 12355, 11236, 1769, 11240, 1770, 1771, 1772,
-			12352, 1773, 1774, 1775, 1776, 445, 444, 6181, 6180, 1438 };
+	int[] Goblins = { 12353, 12355, 11236, 1769, 11240, 1770, 1771, 1772,12352, 1773, 1774, 1775, 1776, 445, 444, 6181, 6180, 1438 };
+	
+	//items
 	int[] Lootid = { 995, 526, 555, 558, 559, 877, 554, 886 };
-	int[] Junk = { 1439, 19830, 288, 2307, 1277, 1139, 1949, 1511, 25547, 9054,
-			1351, 2132, 1438, 1917, 1987, 2138, 1009, 1173, 2138 };
+	int[] Junk = { 1439, 19830, 288, 2307, 1277, 1139, 1949, 1511, 25547, 9054,1351, 2132, 1438, 1917, 1987, 2138, 1009, 1173, 2138,1203 };
 	int[] Food = { 1895, 1893, 1891, 4293, 2142, 291, 2140, 3228, 9980, 7223,
 			6297, 6293, 6295, 6299, 7521, 9988, 7228, 2878, 7568, 2343, 1861,
 			13433, 315, 325, 319, 3144, 347, 355, 333, 339, 351, 329, 3381,
@@ -60,16 +55,8 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 			5749, 5751, 5753, 5755, 5757, 5759, 5761, 2084, 2034, 2048, 2036,
 			2217, 2213, 2205, 2209, 2054, 2040, 2080, 2277, 2225, 2255, 2221,
 			2253, 2219, 2281, 2227, 2223, 2191, 2233, 2092, 2032, 2074, 2030,
-			2281, 2235, 2064, 2028, 2187, 2185, 2229, 6883, 1971, 4608, 1883,
-			1885, 1982 };
+			2281, 2235, 2064, 2028, 2187, 2185, 2229, 6883, 1971, 4608, 1883,1885, 1982 };
 	int Bone = 526;
-	Tile[] path = { new Tile(3220, 3218, 0), new Tile(3228, 3219, 0),
-			new Tile(3234, 3224, 0), new Tile(3240, 3226, 0),
-			new Tile(3248, 3226, 0), new Tile(3247, 3232, 0),
-			new Tile(3249, 3238, 0) };
-	Area goblins = new Area(new Tile[] { new Tile(3241, 3231, 0),
-			new Tile(3241, 3248, 0), new Tile(3262, 3248, 0),
-			new Tile(3262, 3231, 0) });
 
 	public void onStart() {
 		if (Game.isLoggedIn())
@@ -100,71 +87,16 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 
 	@Override
 	public int loop() {
-		if(isRunEnabled()) {
-		Walking.getEnergy(); 
-		if (weareinArea() && Walking.getEnergy() >= 10)
-			Walking.setRun(true);
-		}
 		Attack(); {
 		if (Players.getLocal().getInteracting() != null)
 			Players.getLocal().validate();
 		Eating();
-		getAdrenaline();
 		}
-		if (!Inventory.isFull() && Players.getLocal().isIdle()) 
+		if (!Inventory.isFull()) 
 			Looting();
 		else if (Inventory.isFull())
 			BuryandDrop();
-		Antiban();
 		return 150;
-	}
-
-	private void Antiban() {
-		// Max and Min Time
-		int minMilliSecond = 500;
-		int maxMillisecond = 50000;
-		sleep(Random.nextInt(minMilliSecond, maxMillisecond));
-		status = "move mouse";
-		// randomly generated numbers for mouse
-		int x = Random.nextInt(1, 450);
-		int y = Random.nextInt(1, 450);
-		int randomX = Random.nextInt(1, 300);
-		int randomY = Random.nextInt(1, 300);
-		Mouse.move(x, y, randomX, randomY);
-
-		int ii = Random.nextInt(1, 20);
-		switch (ii) {
-		case 1:
-			status = "Seting Angle";
-			Camera.setAngle(Random.nextInt(1, 450));
-			break;
-		case 2:
-			status = "Seting Pitch";
-			Camera.setPitch(Random.nextInt(1, 450));
-			break;
-
-		case 3:
-			status = "Seting Angle & Seting Pitch";
-			Camera.setAngle(Random.nextInt(10, 500));
-			Camera.setPitch(Random.nextInt(10, 500));
-			break;
-		case 4:
-			status = "Seting Angle";
-			Camera.setAngle(Random.nextInt(20, 300));
-			break;
-		case 5:
-			status = "Moveing Mouse Randomly";
-			Mouse.move(
-					Random.nextInt(Mouse.getLocation().x - 150,
-							Mouse.getLocation().x + 150),
-					Random.nextInt(Mouse.getLocation().y - 150,
-							Mouse.getLocation().y + 150));
-			break;
-
-		default:
-			break;
-		}
-
 	}
 
 	private void Eating() {
@@ -192,7 +124,7 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 				if (item.getId() == id || item.getId() == Bone) {
 					status = "Droping";
 					item.getWidgetChild().interact("Drop");
-					//sleep(Random.nextInt(300, 500));
+					sleep(Random.nextInt(300, 500));
 				}
 			}
 		}
@@ -245,11 +177,6 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 		}
 	}
 
-	private boolean weareinArea() {
-		status = "We are in the Goblins Area";
-		return goblins.contains(Players.getLocal().getLocation());
-	}
-
 	private final Color color1 = new Color(0, 0, 0);
 	private final Color color2 = new Color(0, 204, 255);
 	private final Color color3 = new Color(0, 255, 0);
@@ -273,8 +200,8 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 		g.setFont(font1);
 		g.setColor(color1);
 		g.drawString("Good Fight Goblins by: Xianb", 36, 412);
-		g.drawString("Time running: " + hours + ":" + minutes + ":" + seconds,
-				34, 367);
+		g.drawString("Version: 15", 44, 384);
+		g.drawString("Time running: " + hours + ":" + minutes + ":" + seconds,34, 367);
 		g.drawString("Status: " + status, 35, 444);
 		g.setFont(font2);
 		g.setColor(color3);
@@ -334,15 +261,5 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 		spinG2.drawLine(p.x - 5, p.y, p.x + 5, p.y);
 		spinG2.drawLine(p.x, p.y - 5, p.x, p.y + 5);
 	}
-
-	public static int getAdrenaline() {
-		status = "Getting Adrenaline";
-		return Settings.get(679) / 10;
-	}
-	
-	private boolean isRunEnabled() {
-		status="Checking if Run is Enabled";
-        return Settings.get(463) != 0;
-}
 
 }
