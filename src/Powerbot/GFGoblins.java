@@ -7,9 +7,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-
 import org.powerbot.core.event.listeners.PaintListener;
 import org.powerbot.core.script.ActiveScript;
 import org.powerbot.core.script.job.Task;
@@ -17,7 +14,6 @@ import org.powerbot.game.api.Manifest;
 import org.powerbot.game.api.methods.Game;
 import org.powerbot.game.api.methods.Settings;
 import org.powerbot.game.api.methods.Walking;
-import org.powerbot.game.api.methods.Widgets;
 import org.powerbot.game.api.methods.input.Mouse;
 import org.powerbot.game.api.methods.interactive.NPCs;
 import org.powerbot.game.api.methods.interactive.Players;
@@ -30,8 +26,6 @@ import org.powerbot.game.api.wrappers.Area;
 import org.powerbot.game.api.wrappers.Tile;
 import org.powerbot.game.api.wrappers.node.GroundItem;
 import org.powerbot.game.api.wrappers.node.Item;
-import org.powerbot.game.api.wrappers.widget.Widget;
-import org.powerbot.game.api.wrappers.widget.WidgetChild;
 
 @Manifest(authors = ("Graser"), name = "Good Fight Goblins", description = "Kills Goblins", version = 9)
 public class GFGoblins extends ActiveScript implements PaintListener {
@@ -46,7 +40,6 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 			MOUSE_BORDER_COLOR = new Color(220, 220, 220),
 			MOUSE_CENTER_COLOR = new Color(89, 255, 89);
 	Timer wait = new Timer(3000); // Dynamic Sleep
-	Random randomGen = new Random();
 	public static final Timer t = new Timer(0);
 	public long startTime = System.currentTimeMillis();
 	int[] Goblins = { 12353, 12355, 11236, 1769, 11240, 1770, 1771, 1772,
@@ -70,7 +63,6 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 			2281, 2235, 2064, 2028, 2187, 2185, 2229, 6883, 1971, 4608, 1883,
 			1885, 1982 };
 	int Bone = 526;
-	public MainPanel main;
 	Tile[] path = { new Tile(3220, 3218, 0), new Tile(3228, 3219, 0),
 			new Tile(3234, 3224, 0), new Tile(3240, 3226, 0),
 			new Tile(3248, 3226, 0), new Tile(3247, 3232, 0),
@@ -80,38 +72,13 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 			new Tile(3262, 3231, 0) });
 
 	public void onStart() {
-		try {
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					try {
-						main = new MainPanel();
-						System.out.println("Main created");
-						main.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-						main.setTitle("GFGoblins");
-						main.pack();
-						main.setVisible(true);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			});
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		if (Game.isLoggedIn())
 			status = "Hello";
-		getCurrentLifepoints();
 		ClaimTicket();
 		if (!Game.isLoggedIn()) {
 			log.info("NOT logged in");
 			stop();
 		}
-	}
-	
-	public void GetEnemyMonsters() {
-		//TODO
 	}
 
 	private void ClaimTicket() {
@@ -141,12 +108,8 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 		Attack(); {
 		if (Players.getLocal().getInteracting() != null)
 			Players.getLocal().validate();
-		getAdrenaline();
 		Eating();
-		DrinkPot();
-		if (Players.getLocal().isInCombat() && inMembersWorld()) {
-			SpecialAttack();
-		}
+		getAdrenaline();
 		}
 		if (!Inventory.isFull() && Players.getLocal().isIdle()) 
 			Looting();
@@ -154,23 +117,6 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 			BuryandDrop();
 		Antiban();
 		return 150;
-	}
-
-	private boolean inMembersWorld() {
-		 boolean memberWorld = true;
-		if (!memberWorld) {
-            return false;
-     }
-     return true;
-}
-
-	private void DrinkPot() {
-		//TODO
-	}
-
-	private void SpecialAttack() {
-		// TODO Auto-generated method stub
-
 	}
 
 	private void Antiban() {
@@ -398,227 +344,5 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 		status="Checking if Run is Enabled";
         return Settings.get(463) != 0;
 }
-
-	private int getCurrentLifepoints() {
-		sleep(Random.nextInt(500, 1000));
-		status = "Getting Current Life Points";
-		Widget gamePane = Widgets.get(748);
-		WidgetChild lifepointsBar = gamePane.getChild(8);
-		if (gamePane.validate()) {
-			if (lifepointsBar.visible()) {
-				String txt = lifepointsBar.getText();
-				if (txt != null) {
-					return Integer.parseInt(txt);
-				}
-			}
-		}
-		return -1;
-	}
-
-	public static boolean isMomentumEnabled() {
-		return Settings.get(1040) != 0;
-	}
-
-	public boolean isActionbarUsable() {
-		status="Checking if Actionbar is Useable";
-		WidgetChild chat = Widgets.get(137, 56);
-		if (chat.validate()) {
-			return chat.getText().toLowerCase().contains("enter to chat");
-		}
-		return false;
-	}
-
-	/**
-	 * 
-	 * @author Stephen
-	 */
-	public class MainPanel extends javax.swing.JPanel {
-
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
-		/**
-		 * Creates new form GFGoblin
-		 */
-		public MainPanel() {
-			initComponents();
-		}
-
-		public void pack() {
-			// TODO Auto-generated method stub
-
-		}
-
-		public void setTitle(String string) {
-			// TODO Auto-generated method stub
-
-		}
-
-		public void setDefaultCloseOperation(int disposeOnClose) {
-			// TODO Auto-generated method stub
-
-		}
-
-		/**
-		 * This method is called from within the constructor to initialize the
-		 * form. WARNING: Do NOT modify this code. The content of this method is
-		 * always regenerated by the Form Editor.
-		 */
-
-		// <editor-fold defaultstate="collapsed" desc="Generated Code">
-		private void initComponents() {
-
-			jFileChooser1 = new javax.swing.JFileChooser();
-			jToggleButton1 = new javax.swing.JToggleButton();
-			jCheckBox1 = new javax.swing.JCheckBox();
-			jCheckBox2 = new javax.swing.JCheckBox();
-			jCheckBox3 = new javax.swing.JCheckBox();
-			jCheckBox4 = new javax.swing.JCheckBox();
-			jTextField1 = new javax.swing.JTextField();
-			jCheckBox5 = new javax.swing.JCheckBox();
-			jScrollPane1 = new javax.swing.JScrollPane();
-			jEditorPane1 = new javax.swing.JEditorPane();
-			jButton1 = new javax.swing.JButton();
-
-			jToggleButton1.setText("jToggleButton1");
-
-			jCheckBox1.setText("Loot");
-			jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent evt) {
-					jCheckBox1ActionPerformed(evt);
-				}
-			});
-
-			jCheckBox2.setText("Fight");
-
-			jCheckBox3.setText("Summoning");
-
-			jCheckBox4.setText("Prayer");
-
-			jTextField1.setText("AIO Fighter ");
-			jTextField1.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent evt) {
-					jTextField1ActionPerformed(evt);
-				}
-			});
-
-			jCheckBox5.setText("Drop");
-
-			jScrollPane1.setViewportView(jEditorPane1);
-
-			jButton1.setText("Start");
-
-			javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-			this.setLayout(layout);
-			layout.setHorizontalGroup(layout
-					.createParallelGroup(
-							javax.swing.GroupLayout.Alignment.LEADING)
-					.addGroup(
-							layout.createSequentialGroup()
-									.addContainerGap()
-									.addGroup(
-											layout.createParallelGroup(
-													javax.swing.GroupLayout.Alignment.LEADING)
-													.addComponent(jCheckBox5)
-													.addComponent(
-															jTextField1,
-															javax.swing.GroupLayout.PREFERRED_SIZE,
-															79,
-															javax.swing.GroupLayout.PREFERRED_SIZE)
-													.addComponent(jCheckBox3)
-													.addComponent(jCheckBox4)
-													.addComponent(jCheckBox1)
-													.addGroup(
-															layout.createSequentialGroup()
-																	.addComponent(
-																			jCheckBox2)
-																	.addPreferredGap(
-																			javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-																	.addComponent(
-																			jScrollPane1,
-																			javax.swing.GroupLayout.PREFERRED_SIZE,
-																			javax.swing.GroupLayout.DEFAULT_SIZE,
-																			javax.swing.GroupLayout.PREFERRED_SIZE)
-																	.addPreferredGap(
-																			javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-																	.addComponent(
-																			jButton1)))
-									.addContainerGap(22, Short.MAX_VALUE)));
-			layout.setVerticalGroup(layout
-					.createParallelGroup(
-							javax.swing.GroupLayout.Alignment.LEADING)
-					.addGroup(
-							layout.createSequentialGroup()
-									.addContainerGap()
-									.addComponent(
-											jTextField1,
-											javax.swing.GroupLayout.PREFERRED_SIZE,
-											javax.swing.GroupLayout.DEFAULT_SIZE,
-											javax.swing.GroupLayout.PREFERRED_SIZE)
-									.addPreferredGap(
-											javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-									.addComponent(jCheckBox5)
-									.addPreferredGap(
-											javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-									.addComponent(jCheckBox3)
-									.addPreferredGap(
-											javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-									.addComponent(jCheckBox4)
-									.addPreferredGap(
-											javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-									.addGroup(
-											layout.createParallelGroup(
-													javax.swing.GroupLayout.Alignment.LEADING)
-													.addGroup(
-															layout.createParallelGroup(
-																	javax.swing.GroupLayout.Alignment.TRAILING)
-																	.addGroup(
-																			layout.createSequentialGroup()
-																					.addComponent(
-																							jCheckBox1)
-																					.addPreferredGap(
-																							javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-																					.addComponent(
-																							jCheckBox2))
-																	.addComponent(
-																			jScrollPane1,
-																			javax.swing.GroupLayout.PREFERRED_SIZE,
-																			javax.swing.GroupLayout.DEFAULT_SIZE,
-																			javax.swing.GroupLayout.PREFERRED_SIZE))
-													.addGroup(
-															layout.createSequentialGroup()
-																	.addGap(27,
-																			27,
-																			27)
-																	.addComponent(
-																			jButton1)))
-									.addContainerGap(37, Short.MAX_VALUE)));
-		}// </editor-fold>
-
-		private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {
-			// TODO add your handling code here:
-		}
-
-		private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {
-			// TODO add your handling code here:
-		}
-
-		// Variables declaration - do not modify
-		private javax.swing.JButton jButton1;
-		private javax.swing.JCheckBox jCheckBox1;
-		private javax.swing.JCheckBox jCheckBox2;
-		private javax.swing.JCheckBox jCheckBox3;
-		private javax.swing.JCheckBox jCheckBox4;
-		private javax.swing.JCheckBox jCheckBox5;
-		private javax.swing.JEditorPane jEditorPane1;
-		@SuppressWarnings("unused")
-		private javax.swing.JFileChooser jFileChooser1;
-		private javax.swing.JScrollPane jScrollPane1;
-		private javax.swing.JTextField jTextField1;
-		private javax.swing.JToggleButton jToggleButton1;
-		// End of variables declaration
-	}
 
 }
