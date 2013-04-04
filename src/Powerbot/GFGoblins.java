@@ -68,7 +68,7 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 	}
 
 	private void ClaimTicket() {
-		status="Scanning claim";
+		status="Scanning for claim";
 		final Item item = Inventory.getItem(24154);
 		if (item != null && item.getWidgetChild().click(true)) {
 			final Timer t = new Timer(2500);
@@ -89,18 +89,18 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 		if (Players.getLocal().getInteracting() != null) {	//Checks if we are intercting with anything at the moment
 			Players.getLocal().validate(); //Verify that we aren't interacting with anything.
 		}
-		if (!Inventory.isFull()) {
+		if (!Inventory.isFull()) 
 			Looting();
-			if (Inventory.isFull())
+		else if (Inventory.isFull())
 				BuryandDrop();
-		}
 		return 150;
 	}
 
 	private void Eating() {
 		if (Inventory.contains(Food) && Inventory.getItem(Food).getWidgetChild().interact("Eat"))
-			status = "Eating";
+			status = "Eating " +Inventory.getItem(Food).getName();
 		sleep(750, 1000);
+		
 	}
 
 	private void BuryandDrop() {
