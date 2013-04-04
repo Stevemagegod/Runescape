@@ -57,9 +57,10 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 	int Bone = 526;
 
 	public void onStart() {
-		if (Game.isLoggedIn())
+		if (Game.isLoggedIn()) {
 			status = "Hello";
 		ClaimTicket();
+		}
 		if (!Game.isLoggedIn()) {
 			log.info("NOT logged in");
 			stop();
