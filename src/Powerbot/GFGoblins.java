@@ -36,7 +36,7 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 	private static final Color MOUSE_COLOR = new Color(0, 255, 255),MOUSE_BORDER_COLOR = new Color(220, 220, 220),MOUSE_CENTER_COLOR = new Color(89, 255, 89);
 	public long startTime = System.currentTimeMillis();
 	int[] Goblins = { 12353, 12355, 11236, 1769, 11240, 1770, 1771, 1772,12352, 1773, 1774, 1775, 1776, 445, 444, 6181, 6180, 1438 };
-	
+
 	//items
 	int[] Lootid = { 995, 526, 555, 558, 559, 877, 554, 886 };
 	int[] Junk = { 1439, 19830, 288, 2307, 1277, 1139, 1949, 1511, 25547, 9054,1351, 2132, 1438, 1917, 1987, 2138, 1009, 1173, 2138,1203 };
@@ -68,39 +68,38 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 
 	private void ClaimTicket() {
 		status="Scanning claim";
-			final Item item = Inventory.getItem(24154);
-        if (item != null && item.getWidgetChild().click(true)) {
-                final Timer t = new Timer(2500);
-                while (t.isRunning() && Inventory.getCount(24154) > 0) {
-                        sleep(50);
-                }
-        }
-}
+		final Item item = Inventory.getItem(24154);
+		if (item != null && item.getWidgetChild().click(true)) {
+			final Timer t = new Timer(2500);
+			while (t.isRunning() && Inventory.getCount(24154) > 0) {
+				sleep(50);
+			}
+		}
+	}
 
 	public void onStop() {
 		status = "Thank You for using my Script";
-    }
+	}
 
 	@Override
 	public int loop() {
-		Attack(); {
-		if (Players.getLocal().getInteracting() != null) //Checks if we are intercting with anything at the moment
+		Attack(); 
+		Eating();
+		if (Players.getLocal().getInteracting() != null) {	//Checks if we are intercting with anything at the moment
 			Players.getLocal().validate(); //Verify that we aren't interacting with anything.
 		}
-		if (!Inventory.isFull()) 
+		if (!Inventory.isFull()) {
 			Looting();
 			if (Inventory.isFull())
-			BuryandDrop();
+				BuryandDrop();
+		}
 		return 150;
 	}
 
-	@SuppressWarnings("unused")
 	private void Eating() {
-		if (Inventory.contains(Food))
+		if (Inventory.contains(Food) && Inventory.getItem(Food).getWidgetChild().interact("Eat"))
 			status = "Eating";
-		Inventory.getItem(Food).getWidgetChild().interact("Eat");
 		sleep(750, 1000);
-		//status="Fuck out of Food";
 	}
 
 	private void BuryandDrop() {
@@ -124,7 +123,7 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 	}
 
 	private void Attack() {
-		if (!Players.getLocal().isInCombat()) {
+		if(!Players.getLocal().isInCombat()) {
 			status = "Looking for Goblins!";
 			if (NPCs.getNearest(Goblins) != null);
 			status = "We See the Goblins!";
@@ -150,11 +149,8 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 				if (loot.getLocation().canReach()) {
 					status = "Turning to Loot";
 					Camera.turnTo(loot);
-					status = "Looting";
-					Mouse.click(false); 
-					loot.interact("Take"); 
-					if (loot.getGroundItem() != null) 
-						loot.validate();
+					status = "Looting " + loot.getGroundItem().getName();
+					loot.interact("Take", loot.getGroundItem().getName());
 					Task.sleep(500, 650);
 					if (Players.getLocal().isMoving()) {
 						while (Players.getLocal().isMoving()) {
