@@ -100,7 +100,7 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 		if (Inventory.contains(Food) && Inventory.getItem(Food).getWidgetChild().interact("Eat"))
 			status = "Eating " +Inventory.getItem(Food).getName();
 		sleep(750, 1000);
-		
+
 	}
 
 	private void BuryandDrop() {
@@ -108,7 +108,7 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 			if (i.getId() == Bone) {
 				status = "Burying Bones";
 				i.getWidgetChild().interact("Bury");
-				Task.sleep(500, 1000);
+				sleep(Random.nextInt(500, 1000));
 			}
 		}
 		status = "Checking for Junk";
@@ -117,7 +117,7 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 				if (item.getId() == id || item.getId() == Bone) {
 					status = "Droping";
 					item.getWidgetChild().interact("Drop");
-					Task.sleep(300, 500);
+					sleep(Random.nextInt(300, 500));
 				}
 			}
 		}
@@ -135,7 +135,7 @@ public class GFGoblins extends ActiveScript implements PaintListener {
 					NPCs.getNearest(Goblins).interact("Attack");
 					sleep(Random.nextInt(2500, 0));
 				} else if (!NPCs.getNearest(Goblins).isOnScreen()) {
-					Camera.setPitch(Random.nextInt(30, 90));
+					Camera.setPitch(75);
 				}
 			}
 		}
