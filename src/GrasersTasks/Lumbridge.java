@@ -1,95 +1,69 @@
-package GrasersTasks;
 import java.awt.Graphics;
 
 import org.powerbot.core.event.events.MessageEvent;
 import org.powerbot.core.event.listeners.MessageListener;
 import org.powerbot.core.event.listeners.PaintListener;
 import org.powerbot.core.script.ActiveScript;
-import org.powerbot.core.script.job.Task;
-import org.powerbot.core.script.job.state.Node;
 import org.powerbot.game.api.Manifest;
-import org.powerbot.game.api.methods.Calculations;
 import org.powerbot.game.api.methods.Game;
-import org.powerbot.game.api.methods.Walking;
-import org.powerbot.game.api.methods.interactive.NPCs;
-import org.powerbot.game.api.methods.interactive.Players;
-import org.powerbot.game.api.methods.node.GroundItems;
-import org.powerbot.game.api.methods.node.SceneEntities;
-import org.powerbot.game.api.methods.widget.Camera;
-import org.powerbot.game.api.wrappers.Area;
 import org.powerbot.game.api.wrappers.Tile;
-import org.powerbot.game.api.wrappers.node.SceneObject;
 
-@Manifest(authors = ("Graser"), name = "Lumbridge", description = "AIO Achievement Diary Script", version = 0.1)
-public class Lumbridge extends ActiveScript implements PaintListener,MessageListener {
-	
-	//itemn ids
-	int Pickaxe;
-	int Hatchet;
-	int RawRatMeat=2134;
-	int Coal;
+/**
+ * @author Xianb
+ */
+@Manifest(authors = ("Graser"), name = "Lumbridge Easy Task", description = "AIO Achievement Diary Script", version = 0.1)
+public class LumbridgeEasyTask extends ActiveScript implements PaintListener,MessageListener {
+
+	/**
+	 * @param args Don't Bitch at me about Conventions
+	 * I Realize i have empty ids.
+	 */
+
+	//items
+	int RuneAxe;
+	int Coins;
+	int CoalOre;
+	int Essence;
+	int Clay;
+	int Net;
+	int Bucket;
+	int Tinderbox;
+	int IronOreRock[]={37309,37307};
 	int FishingRod;
 	int FishingBait;
-	int SoftClay;
-	int RingMould;
-	int Tinderbox;
+	int Feathers;
+	int Hammer;
+	int CookedLobster;
+	int Cowhide;
+	int Needle;
+	int Thread;
+	int Gloves;
+	int RawPike;
+	int RawRatMeat=2134;
+	int Logs;
 	int WaterTalisman;
-	int Essence;
-	int GhostspeakAmulet;
-
-	//Other Variables
-	private Area placeToMine;
-	boolean atMine = false;
-	boolean TaskDone = false;
-	int LumbridgeCastle=0;
-	int Tasks;
-	String Lastmessage;
-	String status;
-	public int adrenaline;
-	public long startTime = System.currentTimeMillis();
 
 	//People
-	int[] Aubury={5913};
-	int[] FatherUrhney={458};
-	int[] DraynorTownCrier;
-	int[] Horacio={741};
-	int[] ExplorerJack;
-	int[] LumbridgeSage={};
-	int[] FatherAerecks={};
-	int[] EstateAgent;
-	int[] HaigHalen;
-	int[] Elsie={2824};
-	int[] StrayDog={5917};
-	int[] Doomsayer={3777};
+	int Ellis;
+	int Dommik;
+	int FatherUrhney;
+	int WiseOldMan;
+	int Sedridors;
 
 	//Objects
-	int[] DoortoHoraciosRoom={36845,36844,33819};
-	int[] Horaciostairs={36777,36771,33795,36772};
-	int[] LumbridgeBankBoothStairs={36772};
-	int[] Flag={37335};
-	int[] ZanarisDoor={4343};
-	int[] WaterTemple={2454};
-	int[] FishingSpot={85};
-	int Fence;
-	int FatherAereckselectionofgravestones;
-	int OrganintheLumbridgeChurch;
-	int BellintheLumbridgeChurch;
-	int AlKharidGate;
-	
-	//Rock ids
-	int ironoreRock[]={37309,37307};
-	int CopperRock;
-	
-	//Trees
-	int[] deadtree={9385,9387,9355};
+	int TrapDoor;
+	int LumbridgeCowsGate;
+	int WiseOldManDoor;
+	int WiseOldManStairCase;
+	int Telescope;
+	int Railing;
+	int WizardsTowerDoors;
 
-	//NPCs
-	int[] Man={7876,13606};
-	int[] Goblin={13613};
-	int[] GiantRat={8829,8828};
-	int[] Zombie;
+	//Monsters
+	int Zombie;
+	int[] Rat={8829,8828};
 
-	// Paths
+	//Walking
 	Tile[] AndItWasTHISBig = new Tile[] { new Tile(3234, 3223, 0),
 			new Tile(3239, 3225, 0), new Tile(3245, 3225, 0),
 			new Tile(3251, 3225, 0), new Tile(3249, 3230, 0),
@@ -136,191 +110,121 @@ public class Lumbridge extends ActiveScript implements PaintListener,MessageList
 			new Tile(3192, 3167, 0), new Tile(3196, 3163, 0),
 			new Tile(3200, 3159, 0), new Tile(3205, 3155, 0) }; //Walks to Father Urhney from the Water Temple.
 
+	//Other Variables
+	int Tasks;
+	String Lastmessage;
+	String status;
+
+	/**Lumbridge Easy Tasks Algorithim
+	 * 
+	 * Start at Lumbridge Lodestone.
+	 * Walk to Lumbridge Cows.
+	 * If Gate To Lumbridge Cows is Closed Open it.
+	 * Kill Cow and Take Cowhide.
+	 * 
+	 * Walk to Al Kahrid
+	 * Open Al Kahrid Gate
+	 * Continue walking to Tanning Store
+	 * If at Tanning Store Trade Ellis
+	 * Tan 1 Soft Leather
+	 * Walk North East and Buy a "Needle, and Thread" from Dommik's Crafting Store
+	 * Use Needle on Thread to make Leather Gloves
+	 * 
+	 * Walk to Al Kahid Mine
+	 * Mine Iron Rocks
+	 * 
+	 * Walk Back to Al Kahrid Gate
+	 * Open Gate
+	 * Walk to Goblin Fishing Spot
+	 * Bait Fishing Spot
+	 * 
+	 * Walk to Lumbridge Furnace
+	 * If At Lumbridge Furnace
+	 * Use Iron Ore on Furnace
+	 * 
+	 * Walk to Zanaris Shed
+	 * If at Zanaris Location
+	 * Open Shed
+	 * If we Got Teleported to other Dimension Log out.
+	 * If we didn't Open Door and Kill a Rat
+	 * Take Raw Rat Meet
+	 * Find Dead Tree 
+	 * If found Chop it down
+	 * 
+	 * Use Tinderbox on Logs
+	 * Use Raw Rat Meat on Fire
+	 * Walk to Water Alter
+	 * If At Water Alter Enter it
+	 * Use Essence on Alter to Craft Water Rune
+	 * 
+	 * Walk to Priest House
+	 * If at House, open door
+	 * Talk to Father Urhney
+	 * Choose Option 3
+	 * 
+	 * Lumbridge Home Teleport Dynar
+	 * Walk to DJail
+	 * If at Jail open TrapDoor
+	 * Climb-Down Trapdoor
+	 * If Task Compleat Climb Back up
+	 * 
+	 * Walk to Wise Old Man
+	 * If Wise Old Man Door Closed Open it
+	 * Talk To Wise Old Man
+	 * Choose Option 2
+	 * 
+	 * Climb up Wise Old Man Stair Case;
+	 * Observe Telescope
+	 * WaitforCutawayScene
+	 * 
+	 * OpenBank
+	 * if(Bankisopen());
+	 * BankClose
+	 * 
+	 * Walk to Wizards Tower
+	 * if at wizards tower open door if closed
+	 * Climbupstaircase
+	 * if at top floor
+	 * open door if closed
+	 * if Demon is on screen
+	 * Tount Through Railing
+	 * Climb Down Stair Case till Basement
+	 * if at Basement
+	 * OpenSedridorsDoor
+	 * if Sedridor is on screen
+	 * right click Teleport
+	 * 
+	 */
+
 	@Override
 	public void messageReceived(MessageEvent arg0) {
 		// TODO Auto-generated method stub
-		
-	}
-	
-	public void onStart() {
-		log.info("Hello");
-	}
-	
-	public class LumbridgeEasy extends Node {
 
-		public boolean activate() {
-			return false;
-		}
-
-		public void execute() {
-			
-		}
-	
-	public int loop() {
-		Walking.newTilePath(AndItWasTHISBig).traverse();
-		Fish();
-		if(TaskDone);
-			Walking.newTilePath(IronOn).traverse();
-			if(atMine())
-			Mine();
-			if(Players.getLocal().isInCombat()) {
-				status="o shit we in combat";
-				if(TaskDone);
-				Walking.newTilePath(BelterOfaSmelter).traverse();
-					Smithing();
-					if(TaskDone);
-					Walking.newTilePath(NowToolLookAt).traverse();
-					OpenDoor();
-					if(Game.getPlane()==0);
-					status="Good we didnt get sent to another Dimension";
-						if(Game.getPlane()==1);
-						status="Shit we got sent to another Dimension stoping Script";
-						stop(); //Stops the Script
-							if(TaskDone);
-							AttackRat();
-							loot();
-							Task.sleep(200, 500);
-							if(Lastmessage.contains("You have completed the Task")) {
-								Chop();
-								Task.sleep(200, 500);
-								Burn();
-								Cooking();
-								EnterTemple(); //Enters the Water temple and Crafts the Water rune
-								if(Lastmessage.contains("You have completed the Task")) {
-									Walking.newTilePath(ICantHearDeadPeople).traverse();
-									TalktoPriest();
-								}
-							}
-			}
-		return 0;
-	}
-	
-	private void TalktoPriest() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void EnterTemple() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void Cooking() {
-		
-	}
-
-	private void Burn() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void loot() {
-		org.powerbot.game.api.wrappers.node.GroundItem loot = GroundItems.getNearest(RawRatMeat);
-		if (loot != null) {
-			if (loot.isOnScreen()) {
-				if (loot.getLocation().canReach()) {
-					Camera.turnTo(loot);
-					String name = loot.getGroundItem().getName();
-					loot.interact("Take", name);
-					Task.sleep(500, 650);
-					if (Players.getLocal().isMoving()) {
-						while (Players.getLocal().isMoving()) {
-							Task.sleep(10, 30);
-						}
-					}
-				}
-			} else {
-				Walking.walk(loot.getLocation());
-				Camera.turnTo(loot.getLocation());
-			}
-		}
-	}
-
-	private void AttackRat() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private boolean OpenDoor() {
-		final SceneObject door = SceneEntities.getNearest(ZanarisDoor);
-		SceneEntities.getNearest(ZanarisDoor);
-		if (door != null) {
-			if (door.isOnScreen()) {
-				door.interact("open");
-			}
-		}
-		return false;
-	}
-
-	private boolean atMine() {
-		if(placeToMine.contains(Players.getLocal().getLocation())){
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	private void Smithing() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void Mine() {
-		if(Players.getLocal().isIdle()) {
-			SceneObject Mine = SceneEntities.getNearest(ironoreRock);
-			if(Mine.isOnScreen()) {
-				Mine.interact("Mine");
-			}
-			else if(!Mine.isOnScreen()) {
-				Camera.turnTo(Mine);
-			}
-		}
-		
-	}
-
-	private void Fish() {
-		org.powerbot.game.api.wrappers.interactive.NPC FISHSPOT = NPCs.getNearest(FishingSpot);
-		if (FISHSPOT != null && FISHSPOT.validate()) {
-			if (FISHSPOT.isOnScreen()) {
-				if (Players.getLocal().getAnimation() == -1) {
-					FISHSPOT.interact("Bait");
-					Task.sleep(1000, 2000);
-				}else{
-					Task.sleep(50,100);
-				}
-			} else {
-				if (Calculations.distanceTo(FISHSPOT) > 7) {
-					Walking.walk(FISHSPOT);
-				} else {
-					Camera.turnTo(FISHSPOT);
-				}
-			}
-		}
-		
-	}
-
-	public void Chop() {
-		if(Players.getLocal().isIdle()) {
-			SceneObject Tree = SceneEntities.getNearest(deadtree);
-			if(Tree.isOnScreen()) {
-				Tree.interact("Chop");
-			}
-			else if(!Tree.isOnScreen()) {
-				Camera.turnTo(Tree);
-			}
-		}
-	}
-}
-
-	@Override
-	public int loop() {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 	@Override
 	public void onRepaint(Graphics arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
+
+	public void onStart() {
+		if(Game.isLoggedIn())
+			status="Hello World";
+		else
+			if(!Game.isLoggedIn())
+				status="Not Logged in";
+		return;
+	}
+
+	@Override
+	public int loop() {
+		// TODO Auto-generated method stub
+		return 150;
+	}
+
+	public void onStop() {
+		status="Thank you for using my script";
+	}
+
 }
