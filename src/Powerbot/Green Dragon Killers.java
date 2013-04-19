@@ -29,7 +29,7 @@ import org.powerbot.game.api.wrappers.node.GroundItem;
 import org.powerbot.game.api.wrappers.node.SceneObject;
 import org.powerbot.game.api.methods.widget.Bank;
 
-@Manifest(authors = ("Graser"), name = "Green Dragon Killers", description = "Kills Green Dragons", version = 3)
+@Manifest(authors = ("Graser"), name = "Green Dragon Killers", description = "Kills Green Dragons", version = 1)
 public class GreenDragonKiller extends ActiveScript implements PaintListener {
 
 	/**
