@@ -29,12 +29,12 @@ import org.powerbot.game.api.wrappers.node.GroundItem;
 import org.powerbot.game.api.wrappers.node.SceneObject;
 import org.powerbot.game.api.methods.widget.Bank;
 
-@Manifest(authors = ("Graser"), name = "Green Dragon Killers", description = "Kills Green Dragons", version = 3.00)
+@Manifest(authors = ("Graser"), name = "Green Dragon Killers", description = "Kills Green Dragons", version = 3)
 public class GreenDragonKiller extends ActiveScript implements PaintListener {
 
 	/**
 	 * @param args Author Xianb aka Graser aka Stevemagegod
-	 * Special Thanks to Defeat3d for helping me with Conventions
+	 * Special Thanks to Defeat3d for helping me with Conventions, and the Loop
 	 */
 
 	// Variables
@@ -107,23 +107,28 @@ public class GreenDragonKiller extends ActiveScript implements PaintListener {
 
 	@Override
 	public int loop() {
-		hopWall();
-		do {
-			Walking.newTilePath(TO_GREEN_DRAGONS).traverse(); 
-			sleep(1500, 3000);
+		if (!Inventory.isFull()) {
 			if (DRAGON_AREA.contains(Players.getLocal())) {
-				attacking();
+				attack();
+				loot();
+			} else {
+				Walking.newTilePath(TO_GREEN_DRAGONS).traverse();
+				Walking.newTilePath(TO_EDGE_DITCH).traverse();
+				hopWall();
 			}
-			if (Inventory.isFull()) // if Inventory is full
-				bank(); // Banks
-		} while (!Inventory.isFull());
-		{
-			looting();
+		} else {
+			Walking.newTilePath(TO_GREEN_DRAGONS).reverse().traverse();
+			Walking.newTilePath(TO_EDGE_DITCH).reverse().traverse();
+			Walking.newTilePath(TO_EDGE_BANK).traverse();
+			hopWall();
+			if (Bank.getNearest() != null) {
+				bank();
+			}
 		}
-		return Random.nextInt(2500, 0);
+		return Random.nextInt(50, 200);
 	}
 
-	private void looting() {
+	private void loot() {
 		GroundItem loot = GroundItems.getNearest(LOOT);
 		if (loot != null) {
 			status = "We see the Loot";
@@ -148,7 +153,7 @@ public class GreenDragonKiller extends ActiveScript implements PaintListener {
 		}
 	}
 
-	private void attacking() {
+	private void attack() {
 		if (!Players.getLocal().isInCombat()) {
 			status = "Looking for GreenDragons!";
 			if (GREEN_DRAGONS != null)
@@ -222,7 +227,7 @@ public class GreenDragonKiller extends ActiveScript implements PaintListener {
 		g.setFont(font1);
 		g.setColor(color1);
 		g.drawString("Good Fight Green Dragons by: Xianb", 36, 412);
-		g.drawString("Version: " + VERSION, 44, 384);
+		g.drawString("Version: 3" + VERSION, 44, 384);
 		g.drawString("Time running: " + runtime.toElapsedString(), 34, 367);
 		g.drawString("Status: " + status, 35, 444);
 		g.setFont(font2);
