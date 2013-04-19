@@ -29,7 +29,7 @@ import org.powerbot.game.api.wrappers.node.GroundItem;
 import org.powerbot.game.api.wrappers.node.SceneObject;
 import org.powerbot.game.api.methods.widget.Bank;
 
-@Manifest(authors = ("Graser"), name = "Green Dragon Killers", description = "Kills Green Dragons", version = 3)
+@Manifest(authors = ("Graser"), name = "Green Dragon Killers", description = "Kills Green Dragons", version = 3.00)
 public class GreenDragonKiller extends ActiveScript implements PaintListener {
 
 	/**
@@ -222,7 +222,7 @@ public class GreenDragonKiller extends ActiveScript implements PaintListener {
 		g.setFont(font1);
 		g.setColor(color1);
 		g.drawString("Good Fight Green Dragons by: Xianb", 36, 412);
-		g.drawString("Version: 3" + VERSION, 44, 384);
+		g.drawString("Version: " + VERSION, 44, 384);
 		g.drawString("Time running: " + runtime.toElapsedString(), 34, 367);
 		g.drawString("Status: " + status, 35, 444);
 		g.setFont(font2);
