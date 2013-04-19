@@ -34,7 +34,7 @@ public class GreenDragonKiller extends ActiveScript implements PaintListener {
 
 	/**
 	 * @param args Author Xianb aka Graser aka Stevemagegod
-	 * Special Thanks to Defeat3d for helping me with Conventions, and the Loop
+	 * Special Thanks to Defeat3d for helping me overall while making this script 
 	 */
 
 	// Variables
