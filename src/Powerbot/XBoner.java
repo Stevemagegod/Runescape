@@ -7,6 +7,16 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
 import org.powerbot.core.event.events.MessageEvent;
 import org.powerbot.core.event.listeners.MessageListener;
@@ -15,24 +25,57 @@ import org.powerbot.game.api.Manifest;
 import org.powerbot.game.api.methods.Game;
 import org.powerbot.game.api.methods.input.Mouse;
 import org.powerbot.game.api.methods.tab.Inventory;
+import org.powerbot.game.api.methods.tab.Skills;
 import org.powerbot.game.api.methods.widget.Bank;
 import org.powerbot.game.api.util.Random;
 import org.powerbot.game.api.wrappers.node.Item;
 import org.powerbot.core.script.ActiveScript;
 
-@Manifest(authors = ("Graser"), name = "XBoner", description = "Buries Bones", version = 2)
+@Manifest(authors = ("Graser"), name = "XBoner", description = "Buries Bones", version = 1)
 public class Boner extends ActiveScript implements PaintListener, MessageListener {
 
 	/**
-	 * @param Author Xianb aka Graser
+	 * @param Author Xianb 
 	 */
 
-	int bone = 526; 
+	int BONES=526;		
+	int BAT_BONES=530;
+	int SMALL_MONKEY_BONES=3179;
+	int MEDIUM_MONKEY_BONES=3180;
+	int LARGE_MONKEY_BONES=3181;
+	int SMELLY_MONKEY_BONES=3185;
+	int SHAKE_QUEST_BONES=3187;
+	int BURNT_BONES=528;
+	int WOLF_BONES=2859;
+	int BIG_BONES=532;
+	int JOGRE_BONES=3125;
+	int BURNT_JOGRE_BONES=3127;
+	int BURNT_PASTRY_JOGRE_BONES=3128;
+	int BURNT_MARINATED_JOGRE_BONES=3130;
+	int COOKED_MARINATED_JOGRE_BONES=3132;
+	int RAW_MARINATED_JOGRE_BONES=3131;
+	int ZOGRE_BONES=4812;
+	int BABY_DRAGON_BONES=534;
+	int SHAIKAHAN_BONES=3123;
+	int WYVERN_BONES=6812;             
+	int DRAGON_BONES=536;
+	int FAYRG_BONES=4830;
+	int RAURG_BONES=4832;
+	int OURG_BONES=4834;
+	int DAGANNOTH_BONES=6729;
+	int FROST_BONES=18830;
+	int ANCIENT_BONES=15410;
 	int bonesBuried;
+	public int whatToDo = 0;
 	private static final Color MOUSE_COLOR = new Color(0, 255, 255),MOUSE_BORDER_COLOR = new Color(220, 220, 220),MOUSE_CENTER_COLOR = new Color(89, 255, 89);
 	public long millis;
 	public long startTime = System.currentTimeMillis();
 	public String status;
+	public boneBuryGui g = new boneBuryGui();
+	private int boneToUse;
+	public boolean guiWait = true;
+	int startExp;
+	public boolean quit = false;
 
 	@Override
 	public void messageReceived(MessageEvent e) {
@@ -115,12 +158,15 @@ public class Boner extends ActiveScript implements PaintListener, MessageListene
 	}
 
 	public void onStart() {
-		if (Game.isLoggedIn()) // Checks if are Player is logged in
-			status = "Hello World"; //Says Hello World if we are logged in
-		else
-			if (!Game.isLoggedIn()) //If we are not logged in
-				status="NOT logged in"; //Status update to
-		stop(); //Kill the Script
+		System.out.println("Sarting...");      
+		startTime = System.currentTimeMillis();
+		startExp = Skills.getExperience(Skills.PRAYER);
+		g.setVisible(true);
+		while(guiWait == true) {
+			sleep(500);
+		}
+		status="Bone ID chosen: " + boneToUse;
+		return;
 	}
 
 	public void onStop() {
@@ -129,40 +175,152 @@ public class Boner extends ActiveScript implements PaintListener, MessageListene
 
 	@Override
 	public int loop() {
+		if(quit == true)
+			return -1;
+		if(whatToDo == 1) {
+			bury();
+		}
 		if(!Inventory.isFull()) //Checks if the inventory is not full.
-			Bank(); //If Inventory is not full it will open the Bank.
+			bank(); //If Inventory is not full it will open the Bank.
 		else
-			if(Inventory.contains(bone)) //Checks if are Inventory contains Bones and if it does contain Bones.
-				Bury(); //It will Bury the bones using a simple for statement. 
+			if(Inventory.contains(boneToUse)) //Checks if are Inventory contains Bones and if it does contain Bones.
+				bury(); //It will Bury the bones using a simple for statement. 
 		return 150;
 	}
 
-	private void Bury() {
-		for (Item i : Inventory.getItems()) //The for statement using 3 Variables Item, I, and Inventory.getitems()
-		{
-			if (i.getId() == bone) //if i equals Bone
+	private void bury() {
+			for (Item i : Inventory.getItems()) //The for statement using 3 Variables Item, I, and Inventory.getitems()
 			{
-				status = "Burying Bones"; 
-				i.getWidgetChild().interact("Bury"); //we will bury the bone
-				sleep(Random.nextInt(500, 1000)); //then sleep. 
+				if (i.getId() == boneToUse) //if i equals Bone
+				{
+					status = "Burying Bones"; 
+					i.getWidgetChild().interact("Bury"); //we will bury the bone
+					sleep(Random.nextInt(500, 1000)); //then sleep. 
+				}
 			}
-		}
 	}
 
-	private void Bank() {
+	private void bank() {
 		status = "Opening Bank";
 		Bank.open(); //Opens Bank
 		status = "Checking if Bank is Open";
 		if(Bank.isOpen()) //if Bank is Open
 			status = "Searching for Bones......";
-		Bank.search("Bone"); //we will search for the Bones
+		Bank.search(" "); //we will search for the Bones
 		status = "Withdrawing";
-		Bank.withdraw(bone, 28); //Once found we will withdraw 28 Bones.
-		if(Inventory.getCount(bone)<=28) //If are Inventory contains the Bones and is less than or equal to 28 items
+		Bank.withdraw(boneToUse, 28); //Once found we will withdraw 28 Bones.
+		sleep(800,1200);
+		if(Inventory.getCount(boneToUse)<=28) //If are Inventory contains the Bones and is less than or equal to 28 items
 			status = "Closing Bank";
-		Bank.close(); //we will close the bank.
-		if(Bank.getItemCount(bone)==0) //This is to prevent Spam Clicking if are Bank no longer has any Bones
-			status = "Bye Bye";
-		Game.logout(true); //Logs are Player out to the Lobby.  
+		Bank.close(); //we will close the bank.  
+	}
+
+	public class boneBuryGui extends JFrame {
+		private static final long serialVersionUID = 1L;
+		private JPanel contentPane;
+
+		public boneBuryGui() {
+			initComponents();
+		}
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		private void initComponents() {
+			setTitle("Boner");
+			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			setBounds(100, 100, 246, 198);
+			contentPane = new JPanel();
+			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+			setContentPane(contentPane);
+			contentPane.setLayout(null);
+
+			JLabel lblPboneburier = new JLabel("Boner");
+			lblPboneburier.setFont(new Font("Comic Sans MS", Font.PLAIN, 19));
+			lblPboneburier.setBounds(62, 11, 112, 37);
+			contentPane.add(lblPboneburier);
+
+			JLabel lblWhatBoneTo = new JLabel("What bone to bury?:");
+			lblWhatBoneTo.setBounds(57, 59, 117, 14);
+			contentPane.add(lblWhatBoneTo);
+			final JComboBox comboBox = new JComboBox();
+			comboBox.setModel(new DefaultComboBoxModel(new String[] {
+					"Normal Bones", "Ancient Bones", "Dragon Bones",
+					"Bat Bones", "Baby Dragon Bones", "Big Bones",
+					"Fayrg Bones", "Curved Bones", "Dagannoth Bones",
+					"Jogre Bones", "Long Bones", "Frost Dragon Bones",
+					"Burnt Bones", "Ourg Bones", "Wolf Bones", "Zogre Bones",
+					"Wyvern bones", "Shaikahan bones", "Raurg bones" }));
+			comboBox.setBounds(44, 82, 125, 20);
+			contentPane.add(comboBox);
+			JButton btnStart = new JButton("Start");
+			btnStart.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					whatToDo = 1;
+					if (comboBox.getSelectedItem().toString()
+							.equals("Normal Bones")) {
+						boneToUse = 526;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Ancient Bones")) {
+						boneToUse = 15410;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Bat Bones")) {
+						boneToUse = 530;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Baby Dragon Bones")) {
+						boneToUse = 7839;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Big Bones")) {
+						boneToUse = 532;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Fayrg Bones")) {
+						boneToUse = 4830;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Curved Bones")) {
+						boneToUse = 10977;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Dagannoth Bones")) {
+						boneToUse = 6729;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Jogre Bones")) {
+						boneToUse = 3125;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Long Bones")) {
+						boneToUse = 10976;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Frost Dragon Bones")) {
+						boneToUse = 18832;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Burnt Bones")) {
+						boneToUse = 528;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Ourg Bones")) {
+						boneToUse = 14793;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Wolf Bones")) {
+						boneToUse = 2859;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Zogre Bones")) {
+						boneToUse = 4812;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Wyvern Bones")) {
+						boneToUse = 6812;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Shaikahan Bones")) {
+						boneToUse = 3123;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Raurg Bones")) {
+						boneToUse = 4832;
+					} else if (comboBox.getSelectedItem().toString()
+							.equals("Dragon Bones")) {
+						boneToUse = 536;
+					}
+					g.dispose();
+					guiWait = false;
+				}
+
+			});
+
+			btnStart.setBounds(10, 126, 210, 23);
+			contentPane.add(btnStart);
+		}
 	}
 }
