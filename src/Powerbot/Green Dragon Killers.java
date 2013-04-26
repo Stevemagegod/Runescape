@@ -1,3 +1,4 @@
+package notCompleated;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -25,19 +26,21 @@ import org.powerbot.game.api.util.Random;
 import org.powerbot.game.api.util.Timer;
 import org.powerbot.game.api.wrappers.Area;
 import org.powerbot.game.api.wrappers.Tile;
+import org.powerbot.game.api.wrappers.interactive.Character;
 import org.powerbot.game.api.wrappers.node.GroundItem;
 import org.powerbot.game.api.wrappers.node.SceneObject;
 import org.powerbot.game.api.methods.widget.Bank;
 
-@Manifest(authors = ("Graser"), name = "Green Dragon Killers", description = "Kills Green Dragons", version = 1)
+@Manifest(authors = ("Graser"), name = "Green Dragon Killers", description = "Kills Green Dragons", version = 3)
 public class GreenDragonKiller extends ActiveScript implements PaintListener {
 
 	/**
 	 * @param args Author Xianb aka Graser aka Stevemagegod
-	 * Special Thanks to Defeat3d for helping me overall while making this script 
+	 * Special Thanks to Defeat3d for helping me with Conventions
 	 */
 
-	// Variables
+	Character Enemy;
+	String EnemyName;
 	private String status;
 	private final double VERSION = 1.00;
 	private Timer runtime = new Timer(0);
@@ -107,23 +110,32 @@ public class GreenDragonKiller extends ActiveScript implements PaintListener {
 
 	@Override
 	public int loop() {
+		do{
+			hopWall();
+		}while(Walking.newTilePath(TO_GREEN_DRAGONS).traverse());
 		if (!Inventory.isFull()) {
 			if (DRAGON_AREA.contains(Players.getLocal())) {
 				attack();
 				loot();
 			} else {
-				Walking.newTilePath(TO_GREEN_DRAGONS).traverse();
-				Walking.newTilePath(TO_EDGE_DITCH).traverse();
+				if(Inventory.isFull())
+				Walking.newTilePath(TO_GREEN_DRAGONS).reverse();
+				if (!Players.getLocal().isMoving()) {
+                    Walking.walk(new Tile((Players.getLocal().getLocation().getX()), 0, 0));
+                }
 				hopWall();
+				Walking.newTilePath(TO_EDGE_BANK).traverse();
+				while (Players.getLocal().isMoving()) {
+                    sleep(300, 400);
+                }
+				if (Bank.getNearest() != null) {
+					bank();
+				}
 			}
 		} else {
-			Walking.newTilePath(TO_GREEN_DRAGONS).reverse().traverse();
 			Walking.newTilePath(TO_EDGE_DITCH).reverse().traverse();
-			Walking.newTilePath(TO_EDGE_BANK).traverse();
 			hopWall();
-			if (Bank.getNearest() != null) {
-				bank();
-			}
+			Walking.newTilePath(TO_GREEN_DRAGONS).reverse().traverse();
 		}
 		return Random.nextInt(50, 200);
 	}
