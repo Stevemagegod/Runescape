@@ -1,3 +1,8 @@
+/**
+ * @author Stephen
+ *
+ */
+
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -25,13 +30,8 @@ import org.powerbot.game.api.methods.widget.Bank;
 
 @Manifest(authors = ("Graser"), name = "EpicRegXianbAshPicker", description = "Loots Ashs and banks them", version = 1)
 public class AshPicker extends ActiveScript implements PaintListener {
-
-/**
- * @author Stephen
- *
- */
-  
-	int Lootid=592; //Loots Ashs
+	
+	int LOOTID=592; //Loots Ashs
 	public long startTime = System.currentTimeMillis();
 	public String status;
 	public long millis;
@@ -196,7 +196,7 @@ public class AshPicker extends ActiveScript implements PaintListener {
 	}
 
 	private void Loot() {
-		GroundItem loot = GroundItems.getNearest(Lootid);
+		GroundItem loot = GroundItems.getNearest(LOOTID);
 		if (loot != null) {
 			status = "We see the Loot";
 			if (loot.isOnScreen()) {
@@ -204,7 +204,7 @@ public class AshPicker extends ActiveScript implements PaintListener {
 				if (loot.getLocation().canReach()) {
 					status = "Turning to Loot";
 					Camera.turnTo(loot);
-					status = "Looting " + loot.getGroundItem().getName(); //Gets the name of the item we are Looting and displays it on the paint
+					status = "Looting " + loot.getGroundItem().getName();
 					loot.interact("Take", loot.getGroundItem().getName());
 					Task.sleep(500, 650);
 					if (Players.getLocal().isMoving()) {
