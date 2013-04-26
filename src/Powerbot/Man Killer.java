@@ -26,11 +26,11 @@ import org.powerbot.game.api.wrappers.interactive.NPC;
 import org.powerbot.game.api.wrappers.node.GroundItem;
 import org.powerbot.game.api.wrappers.node.Item;
 
-@Manifest(authors = { "JesusC" }, description = "Kills men like a boss.", name = "Man Killer")
+@Manifest(authors = { "Xianb" }, description = "Kills men like a boss.", name = "Man Killer")
 public class Mankiller extends ActiveScript implements PaintListener {
 
   /**
-	 * @author JesusC
+	 * @author Xianb
 	 */
 	
 	// VARIABLES
