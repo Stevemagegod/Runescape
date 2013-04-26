@@ -7,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+
 import org.powerbot.core.event.events.MessageEvent;
 import org.powerbot.core.event.listeners.MessageListener;
 import org.powerbot.core.event.listeners.PaintListener;
@@ -21,6 +22,7 @@ import org.powerbot.game.api.methods.interactive.NPCs;
 import org.powerbot.game.api.methods.interactive.Players;
 import org.powerbot.game.api.methods.node.GroundItems;
 import org.powerbot.game.api.methods.tab.Inventory;
+import org.powerbot.game.api.methods.widget.Bank;
 import org.powerbot.game.api.methods.widget.Camera;
 import org.powerbot.game.api.util.Random;
 import org.powerbot.game.api.util.Timer;
@@ -28,23 +30,23 @@ import org.powerbot.game.api.wrappers.Tile;
 import org.powerbot.game.api.wrappers.node.GroundItem;
 import org.powerbot.game.api.wrappers.node.Item;
 import org.powerbot.game.api.wrappers.widget.WidgetChild;
-import org.powerbot.game.api.methods.widget.Bank;
 
-@Manifest(authors = ("Graser"), name = "Good Fight Goblins", description = "Kills Goblins", version = 18)
+@Manifest(authors = ("Graser"), name = "Good Fight Goblins", description = "Kills Goblins", version = 16)
 public class GFGoblins extends ActiveScript implements PaintListener,
 		MessageListener {
 
 	/**
 	 * @param Author Xianb
 	 * This Script is easily convertable to any other monster in runescape. It doesn't have to be just Goblins.
+	 * Fixed Conventions, organized Imports
 	 */
 
 	// Variables
-	private Tile[] goblinArea = new Tile[] { new Tile(3256, 3241, 0),
+	private Tile[] GOBLIN_AREA = new Tile[] { new Tile(3256, 3241, 0),
 			new Tile(3251, 3244, 0) };
-	private final Tile[] walkToEdgevilleBank = new Tile[] {
+	private final Tile[] WALK_TO_EDGEVILLE_BANK = new Tile[] {
 			new Tile(3082, 3501, 0), new Tile(3095, 3496, 0) };
-	private final Tile[] walktoGoblins = new Tile[] { new Tile(3234, 3222, 0),
+	private final Tile[] WALK_TO_GOBLINS = new Tile[] { new Tile(3234, 3222, 0),
 			new Tile(3250, 3226, 0), new Tile(3259, 3236, 0),
 			new Tile(3252, 3251, 0), new Tile(3249, 3266, 0) };
 	String lastMessage = "", status = "";
@@ -53,14 +55,14 @@ public class GFGoblins extends ActiveScript implements PaintListener,
 			MOUSE_CENTER_COLOR = new Color(89, 255, 89);
 	public long startTime = System.currentTimeMillis();
 	int dead;
-	int[] goblins = { 12353, 12355, 11236, 1769, 11240, 1770, 1771, 1772,
+	int[] GOBLINS = { 12353, 12355, 11236, 1769, 11240, 1770, 1771, 1772,
 			12352, 1773, 1774, 1775, 1776, 445, 444, 6181, 6180, 1438 };
 
 	// items
-	int[] lootid = { 995, 526, 555, 558, 559, 877, 554, 886 };
-	int[] junk = { 1439, 19830, 288, 2307, 1277, 1139, 1949, 1511, 25547, 9054,
+	int[] LOOTID = { 995, 526, 555, 558, 559, 877, 554, 886 };
+	int[] JUNK = { 1439, 19830, 288, 2307, 1277, 1139, 1949, 1511, 25547, 9054,
 			1351, 2132, 1438, 1917, 1987, 2138, 1009, 1173, 2138, 1203 };
-	int[] food = { 1895, 1893, 1891, 4293, 2142, 291, 2140, 3228, 9980, 7223,
+	int[] FOOD = { 1895, 1893, 1891, 4293, 2142, 291, 2140, 3228, 9980, 7223,
 			6297, 6293, 6295, 6299, 7521, 9988, 7228, 2878, 7568, 2343, 1861,
 			13433, 315, 325, 319, 3144, 347, 355, 333, 339, 351, 329, 3381,
 			361, 10136, 5003, 379, 365, 373, 7946, 385, 397, 391, 3369, 3371,
@@ -104,21 +106,21 @@ public class GFGoblins extends ActiveScript implements PaintListener,
 
 	@Override
 	public int loop() {
-		Antiban();
+		antiban();
 		//Stops the Script if the scripts gets out of area perfectly just the way i want
-		if (goblinArea.equals(goblinArea)) {
-			Attack();
+		if (GOBLIN_AREA.equals(GOBLIN_AREA)) {
+			attack();
 			sleep(Random.nextInt(500, 1000));
 		}
-		Eating();
+		eating();
 		if (!Inventory.isFull()) {
-			Looting();
+			loot();
 		} else if (Inventory.isFull())
 			buryandDrop();
 		return Random.nextInt(50, 100);
 	}
 
-	private void Antiban() {
+	private void antiban() {
 		//Max and Min Time
 		int minMilliSecond = 500;
 		int maxMillisecond = 50000;
@@ -165,15 +167,15 @@ public class GFGoblins extends ActiveScript implements PaintListener,
 
 	}
 
-	private void Eating() {
+	private void eating() {
 		if (Players.getLocal().isInCombat()) {
 			status = "Getting Health " + Players.getLocal().getHealthPercent();
 			if (Players.getLocal().getHealthPercent() <= 20
-					&& Inventory.contains(food)) {
+					&& Inventory.contains(FOOD)) {
 				status = "Eating "
-						+ Inventory.getItem(food).getWidgetChild()
+						+ Inventory.getItem(FOOD).getWidgetChild()
 								.interact("Eat");
-				if (!Inventory.contains(food)) {
+				if (!Inventory.contains(FOOD)) {
 					status = "Fuck we out of Food";
 				}
 			}
@@ -190,7 +192,7 @@ public class GFGoblins extends ActiveScript implements PaintListener,
 		}
 		status = "Checking for Junk";
 		for (Item item : Inventory.getItems()) {
-			for (int id : junk) {
+			for (int id : JUNK) {
 				if (item.getId() == id || item.getId() == BONE) {
 					status = "Droping";
 					item.getWidgetChild().interact("Drop");
@@ -201,26 +203,26 @@ public class GFGoblins extends ActiveScript implements PaintListener,
 	}
 
 	//phlow showed me how to do the following without NPCs.getNearest Goblins multiple times but then it wouldn't be my own work if i used his.
-	private void Attack() {
+	private void attack() {
 		if (!Players.getLocal().isInCombat()) {
 			status = "Looking for Goblins!";
-			if (goblins != null);
+			if (GOBLINS != null);
 			status = "We See the Goblins!";
-			if (NPCs.getNearest(goblins).isOnScreen()) {
+			if (NPCs.getNearest(GOBLINS).isOnScreen()) {
 				status = "Checking to see if we are in Combat";
-				if (!NPCs.getNearest(goblins).isInCombat()) {
+				if (!NPCs.getNearest(GOBLINS).isInCombat()) {
 					status = "We Should Be Attacking them Now";
-					NPCs.getNearest(goblins).interact("Attack");
+					NPCs.getNearest(GOBLINS).interact("Attack");
 					sleep(Random.nextInt(2500, 0));
-				} else if (!NPCs.getNearest(goblins).isOnScreen()) {
+				} else if (!NPCs.getNearest(GOBLINS).isOnScreen()) {
 					Camera.setPitch(75);
 				}
 			}
 		}
 	}
 
-	private void Looting() {
-		GroundItem loot = GroundItems.getNearest(lootid);
+	private void loot() {
+		GroundItem loot = GroundItems.getNearest(LOOTID);
 		if (loot != null) {
 			status = "We see the Loot";
 			if (loot.isOnScreen()) {
@@ -338,7 +340,7 @@ public class GFGoblins extends ActiveScript implements PaintListener,
 		if (lastMessage.contains("Oh dear, you are dead")) {
 			dead++;
 			status = "Death Walk"
-					+ Walking.newTilePath(walktoGoblins).traverse();
+					+ Walking.newTilePath(WALK_TO_GOBLINS).traverse();
 		}
 		if (Inventory.isFull() && !Inventory.contains(BONE)) {
 			Bank();
@@ -348,12 +350,12 @@ public class GFGoblins extends ActiveScript implements PaintListener,
 
 	private void Bank() {
 		TeleporttoEdgeville();
-		Walking.newTilePath(walkToEdgevilleBank).traverse();
+		Walking.newTilePath(WALK_TO_EDGEVILLE_BANK).traverse();
 		Task.sleep(500, 750);
 		Bank.open();
 		if (Bank.isOpen()) {
 			Bank.depositInventory();
-			if (!Inventory.contains(lootid)) {
+			if (!Inventory.contains(LOOTID)) {
 				Bank.close();
 			}
 			TeleporttoLumbridge();
