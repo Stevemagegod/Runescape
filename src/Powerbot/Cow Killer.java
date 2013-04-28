@@ -29,6 +29,7 @@ import org.powerbot.game.api.util.Random;
 import org.powerbot.game.api.util.Timer;
 import org.powerbot.game.api.wrappers.Area;
 import org.powerbot.game.api.wrappers.Tile;
+import org.powerbot.game.api.wrappers.interactive.NPC;
 import org.powerbot.game.api.wrappers.node.GroundItem;
 import org.powerbot.game.api.wrappers.node.Item;
 import org.powerbot.game.api.wrappers.node.SceneObject;
@@ -36,23 +37,20 @@ import org.powerbot.game.api.wrappers.widget.WidgetChild;
 
 @Manifest(authors = ("Graser"), name = "Cow Killer", description = "Kills Cows", version = 0.1)
 public class CowKiller extends ActiveScript implements PaintListener,
-		MessageListener {
+MessageListener {
 
 	/**
 	 * @param args
 	 */
 
 	// Variables
-	int Lootid[] = { 526, 1739 };
-	int Logs = 1511;
-	int LumbridgeCowsGate[] = { 45212, 45210 };
-	int Cow[] = { 12362, 12364, 12363, 12365 };
+	final int Lootid[] = { 1739,526 };
+	final int LumbridgeCowsGate[] = { 45212, 45210 };
+	final int Cow[] = { 12362, 12364, 12363, 12365 };
 	int dieCount = 0;
-	int BONES = 526;
-	int LumbrdigeStaircase = 36773;
-	boolean KillingCows = false;
-	final int beefyBillID = 246;
-	final int beefyBillInterface = 236;
+	NPC Monster = NPCs.getNearest(Cow);
+	GroundItem loot = GroundItems.getNearest(Lootid);
+	final int BONES = 526;
 	Tile[] AreaLumbridgeCows = new Tile[] { new Tile(3253, 3265, 0),
 			new Tile(3254, 3256, 0), new Tile(3264, 3259, 0),
 			new Tile(3243, 3283, 0), new Tile(3241, 3295, 0),
@@ -81,7 +79,7 @@ public class CowKiller extends ActiveScript implements PaintListener,
 			new Tile(3266, 3272, 0), new Tile(3265, 3277, 0),
 			new Tile(3265, 3282, 0), new Tile(3259, 3267, 0),
 			new Tile(3260, 3262, 0), new Tile(3263, 3258, 0) });
-	public final Tile[] path = {
+	public final Tile[] Lodestonepathtocows = {
 			new Tile(3233, 3221, 0), new Tile(3237, 3224, 0),
 			new Tile(3243, 3227, 0), new Tile(3250, 3226, 0),
 			new Tile(3255, 3228, 0), new Tile(3259, 3233, 0),
@@ -89,13 +87,29 @@ public class CowKiller extends ActiveScript implements PaintListener,
 			new Tile(3255, 3249, 0), new Tile(3250, 3252, 0),
 			new Tile(3251, 3258, 0), new Tile(3255, 3261, 0)
 	};
+	public final Area LumbridgeLodestonearea = new Area(new Tile[] {
+			new Tile(3231, 3220, 0), new Tile(3233, 3220, 0),
+			new Tile(3233, 3220, 0), new Tile(3233, 3220, 0),
+			new Tile(3234, 3225, 0), new Tile(3230, 3223, 0),
+			new Tile(3235, 3223, 0), new Tile(3238, 3219, 0),
+			new Tile(3234, 3215, 0), new Tile(3229, 3217, 0),
+			new Tile(3230, 3222, 0), new Tile(3234, 3225, 0),
+			new Tile(3229, 3224, 0), new Tile(3233, 3227, 0),
+			new Tile(3236, 3223, 0), new Tile(3234, 3228, 0),
+			new Tile(3229, 3227, 0), new Tile(3229, 3222, 0),
+			new Tile(3234, 3226, 0) 
+	});
+	Area edgevilleBankArea = new Area(new Tile[] { new Tile(3090, 3499, 0), new Tile(3097, 3499, 0), new Tile(3097, 3487, 0), 
+			new Tile(3090, 3487, 0) });
+	Area edgevilleLodestoneArea = new Area(new Tile[] { new Tile(3062, 3509, 0), new Tile(3067, 3509, 0), new Tile(3071, 3508, 0), 
+			new Tile(3070, 3501, 0), new Tile(3064, 3499, 0), new Tile(3060, 3506, 0) });
 	private static final Color MOUSE_COLOR = new Color(0, 255, 255),
 			MOUSE_BORDER_COLOR = new Color(220, 220, 220),
 			MOUSE_CENTER_COLOR = new Color(89, 255, 89);
 
 	@Override
 	public void messageReceived(MessageEvent e) {
-		if (Lastmessage.contains("Oh dear")) {
+		if (Lastmessage.contains("Oh dear, you are dead")) {
 			dieCount++;
 		}
 
@@ -191,32 +205,108 @@ public class CowKiller extends ActiveScript implements PaintListener,
 	public void onStart() {
 		if (Game.isLoggedIn())
 			status = "Hello World";
-		else if (!Game.isLoggedIn())
+		else if (!Game.isLoggedIn()) {
 			status = "Not Logged in";
+		}
 		return;
 	}
 
 	@Override
 	public int loop() {
-		Attackcows();
-		sleep(2000); // Sleeps for 2 Seconds
-		if (!(Players.getLocal().getInteracting() != null && Cowarea.contains(AreaLumbridgeCows)))
-			Loot();
+		if(atCows()) 
+			Attackcows();
+		sleep(2000);
+		if (!(Players.getLocal().getInteracting() != null))
+			if(atCows())
+				Loot();
 		sleep(3000);
 		while (Inventory.getCount() == 28) {
 			if (Inventory.contains(BONES))
 				Bury();
-			else if (!Inventory.contains(BONES)) {
+			else if (!Inventory.contains(BONES) && Inventory.isFull()) {
+				TeleporttoEdgeville();
+				if(atEdge())
+					status = "Walking to Edgeville Bank";
+				Walking.newTilePath(Bankpath).traverse();
 				Bank();
+				if(!Inventory.isFull()) 
+					while(atBank())
+						TeleporttoLumbridge();
+				status ="Walking Back to Cows";
+				if(atLumbridge())
+				Walking.newTilePath(Lodestonepathtocows).traverse();
 			}
 		}
-		return Random.nextInt(150,450);
+		return Random.nextInt(150, 450);
+	}
+
+	private boolean atCows() {
+		return Cowarea.contains(Players.getLocal().getLocation());
+	}
+
+	private boolean atEdge() {
+		return edgevilleLodestoneArea.contains(Players.getLocal().getLocation());
+	}
+
+	private boolean atLumbridge() {
+		return LumbridgeLodestonearea.contains(Players.getLocal().getLocation());
+	}
+
+	private boolean atBank() {
+		return edgevilleBankArea.contains(Players.getLocal().getLocation());
+	}
+
+	public void Antiban() {
+		//Max and Min Time
+		int minMilliSecond = 500;
+		int maxMillisecond = 50000;
+		sleep(Random.nextInt(minMilliSecond, maxMillisecond));
+		status="move mouse";
+		//randomly generated numbers for mouse
+		int x=Random.nextInt(1,450);
+		int y=Random.nextInt(1,450);
+		int randomX= Random.nextInt(1,300);
+		int randomY=Random.nextInt(1,300);
+		Mouse.move(x,y,randomX,randomY);
+
+		int ii=Random.nextInt(1,20);
+		switch (ii){
+		case 1:
+			status="Seting Angle";
+			Camera.setAngle(Random.nextInt(1, 450));
+			break;
+		case 2:
+			status="Seting Pitch";
+			Camera.setPitch(Random.nextInt(1, 450));
+			break;
+
+		case 3:
+			status="Seting Angle & Seting Pitch";
+			Camera.setAngle(Random.nextInt(10, 500));
+			Camera.setPitch(Random.nextInt(10, 500));
+			break;
+		case 4:
+			status="Seting Angle";
+			Camera.setAngle(Random.nextInt(20, 300));
+			break;
+		case 5:
+			status="Moveing Mouse Randomly";
+			Mouse.move(Random.nextInt(Mouse.getLocation().x - 150,
+					Mouse.getLocation().x + 150),
+					Random.nextInt(Mouse.getLocation().y - 150,
+							Mouse.getLocation().y + 150));
+			break;
+
+		default:
+			break;
+		}
+
 	}
 
 	private void Bury() {
 		for (Item i : Inventory.getItems()) // The for statement using 3
-											// Variables Item, I, and
-											// Inventory.getitems()
+			// Variables Item, I, and
+			// Inventory.getitems()
 		{
 			if (i.getId() == BONES) // if i equals Bone
 			{
@@ -228,119 +318,114 @@ public class CowKiller extends ActiveScript implements PaintListener,
 	}
 
 	private void Bank() {
-		TeleporttoEdgeville();
-		status = "Checking to see if we can reach are destination";
-		if (Walking.getDestination().canReach())
-			status = "Walking to Lumbridge Bank";
-		Walking.newTilePath(Bankpath).traverse();
-		Bank.open();
-		if(Bank.isOpen()) {
-			Bank.depositInventory();
-			Bank.close();
-			if(Inventory.getCount()<28) {
-				TeleporttoLumbridge();
-				Walking.newTilePath(path).traverse();
+		if(atBank()) {
+			status="Opening Bank";
+			Bank.open();
+			if(Bank.isOpen()) {
+				status="Depositing Inventory";
+				Bank.depositInventory();
+				status="Closing Bank";
+				Bank.close();
 			}
 		}
-		//status = "Dang Someone Closed the Gate on us";
 	}
 
 	//Credits to unown author http://pastebin.com/brShbn7i
-		private void TeleporttoLumbridge() {
-			final WidgetChild SKILL_TAB = Widgets.get(275, 16);
-	        if (SKILL_TAB.validate() && !SKILL_TAB.visible()) {
-	                final WidgetChild OPEN_SKILL_TAB = Widgets.get(548, 114);
-	                status="Interacting with Ability Book";
-	                if (OPEN_SKILL_TAB.validate()
-	                                && OPEN_SKILL_TAB.interact("Ability Book")) {
-	                        Task.sleep(300, 600);
-	                }
-	        }
-	        final WidgetChild MAGIC_TAB = Widgets.get(275, 62);
-	        if (MAGIC_TAB.validate() && !MAGIC_TAB.visible()) {
-	                final WidgetChild OPEN_MAGIC_TAB = Widgets.get(275, 40);
-	                status="Interacting with the Magic Button";
-	                if (OPEN_MAGIC_TAB.validate() && OPEN_MAGIC_TAB.interact("Magic")) {
-	                        Task.sleep(300, 600);
-	                }
-	        }
-	        final WidgetChild TELEPORT_TAB = Widgets.get(275, 38);
-	        if (TELEPORT_TAB.validate() && !TELEPORT_TAB.visible()) {
-	                final WidgetChild OPEN_TELEPORT_TAB = Widgets.get(275, 46);
-	                status="Validating Spells";
-	                if (OPEN_TELEPORT_TAB.validate()
-	                                && OPEN_TELEPORT_TAB.interact("Teleport-spells")) {
-	                        Task.sleep(300, 600);
-	                }
-	        }
-	        final WidgetChild LODESTONE_BUTTON = Widgets.get(275, 16).getChild(155);
-	        if (LODESTONE_BUTTON.validate() && LODESTONE_BUTTON.visible())
-	        	status="Teleporting to Lumbridge";
-	                if (LODESTONE_BUTTON.interact("Cast")) {
-	                        Task.sleep(800, 1200);
-	                }
-	        final WidgetChild DESTINATION_CHOOSE = Widgets.get(1092, 0);
-	        if (DESTINATION_CHOOSE.validate() && DESTINATION_CHOOSE.visible()) {
-	                final WidgetChild DESTINATION_BUTTON = Widgets.get(1092, 47); //Lumbridge 
-	                if (DESTINATION_BUTTON.validate() && DESTINATION_BUTTON.visible()) {
-	                        if (DESTINATION_BUTTON.interact("Teleport")) {
-	                                Task.sleep(2000, 3000);
-	                                final Timer TIMEOUT = new Timer(15000);
-	                                while (TIMEOUT.isRunning() && !Players.getLocal().isIdle()) {
-	                                        Task.sleep(50, 100);
-	                                }
-	                        }
-	                }
-	        }
+	private void TeleporttoLumbridge() {
+		final WidgetChild SKILL_TAB = Widgets.get(275, 16);
+		if (SKILL_TAB.validate() && !SKILL_TAB.visible()) {
+			final WidgetChild OPEN_SKILL_TAB = Widgets.get(548, 114);
+			status="Interacting with Ability Book";
+			if (OPEN_SKILL_TAB.validate()
+					&& OPEN_SKILL_TAB.interact("Ability Book")) {
+				Task.sleep(300, 600);
+			}
+		}
+		final WidgetChild MAGIC_TAB = Widgets.get(275, 62);
+		if (MAGIC_TAB.validate() && !MAGIC_TAB.visible()) {
+			final WidgetChild OPEN_MAGIC_TAB = Widgets.get(275, 40);
+			status="Interacting with the Magic Button";
+			if (OPEN_MAGIC_TAB.validate() && OPEN_MAGIC_TAB.interact("Magic")) {
+				Task.sleep(300, 600);
+			}
+		}
+		final WidgetChild TELEPORT_TAB = Widgets.get(275, 38);
+		if (TELEPORT_TAB.validate() && !TELEPORT_TAB.visible()) {
+			final WidgetChild OPEN_TELEPORT_TAB = Widgets.get(275, 46);
+			status="Validating Spells";
+			if (OPEN_TELEPORT_TAB.validate()
+					&& OPEN_TELEPORT_TAB.interact("Teleport-spells")) {
+				Task.sleep(300, 600);
+			}
+		}
+		final WidgetChild LODESTONE_BUTTON = Widgets.get(275, 16).getChild(155);
+		if (LODESTONE_BUTTON.validate() && LODESTONE_BUTTON.visible())
+			status="Teleporting to Lumbridge";
+		if (LODESTONE_BUTTON.interact("Cast")) {
+			Task.sleep(800, 1200);
+		}
+		final WidgetChild DESTINATION_CHOOSE = Widgets.get(1092, 0);
+		if (DESTINATION_CHOOSE.validate() && DESTINATION_CHOOSE.visible()) {
+			final WidgetChild DESTINATION_BUTTON = Widgets.get(1092, 47); //Lumbridge 
+			if (DESTINATION_BUTTON.validate() && DESTINATION_BUTTON.visible()) {
+				if (DESTINATION_BUTTON.interact("Teleport")) {
+					Task.sleep(2000, 3000);
+					final Timer TIMEOUT = new Timer(15000);
+					while (TIMEOUT.isRunning() && !Players.getLocal().isIdle()) {
+						Task.sleep(50, 100);
+					}
+				}
+			}
+		}
 	}
 
-		//Credits to unown author http://pastebin.com/brShbn7i
-		private void TeleporttoEdgeville() {
-			final WidgetChild SKILL_TAB = Widgets.get(275, 16);
-	        if (SKILL_TAB.validate() && !SKILL_TAB.visible()) {
-	                final WidgetChild OPEN_SKILL_TAB = Widgets.get(548, 114);
-	                status="Interacting with Ability Book";
-	                if (OPEN_SKILL_TAB.validate()
-	                                && OPEN_SKILL_TAB.interact("Ability Book")) {
-	                        Task.sleep(300, 600);
-	                }
-	        }
-	        final WidgetChild MAGIC_TAB = Widgets.get(275, 62);
-	        if (MAGIC_TAB.validate() && !MAGIC_TAB.visible()) {
-	                final WidgetChild OPEN_MAGIC_TAB = Widgets.get(275, 40);
-	                status="Interacting with the Magic Button";
-	                if (OPEN_MAGIC_TAB.validate() && OPEN_MAGIC_TAB.interact("Magic")) {
-	                        Task.sleep(300, 600);
-	                }
-	        }
-	        final WidgetChild TELEPORT_TAB = Widgets.get(275, 38);
-	        if (TELEPORT_TAB.validate() && !TELEPORT_TAB.visible()) {
-	                final WidgetChild OPEN_TELEPORT_TAB = Widgets.get(275, 46);
-	                status="Validating Spells";
-	                if (OPEN_TELEPORT_TAB.validate()
-	                                && OPEN_TELEPORT_TAB.interact("Teleport-spells")) {
-	                        Task.sleep(300, 600);
-	                }
-	        }
-	        final WidgetChild LODESTONE_BUTTON = Widgets.get(275, 16).getChild(155);
-	        if (LODESTONE_BUTTON.validate() && LODESTONE_BUTTON.visible())
-	        	status="Teleporting to Edgeville";
-	                if (LODESTONE_BUTTON.interact("Cast")) {
-	                        Task.sleep(800, 1200);
-	                }
-	        final WidgetChild DESTINATION_CHOOSE = Widgets.get(1092, 0);
-	        if (DESTINATION_CHOOSE.validate() && DESTINATION_CHOOSE.visible()) {
-	                final WidgetChild DESTINATION_BUTTON = Widgets.get(1092, 45); //Edgeville 
-	                if (DESTINATION_BUTTON.validate() && DESTINATION_BUTTON.visible()) {
-	                        if (DESTINATION_BUTTON.interact("Teleport")) {
-	                                Task.sleep(2000, 3000);
-	                                final Timer TIMEOUT = new Timer(15000);
-	                                while (TIMEOUT.isRunning() && !Players.getLocal().isIdle()) {
-	                                        Task.sleep(50, 100);
-	                                }
-	                        }
-	                }
-	        }
+	//Credits to unown author http://pastebin.com/brShbn7i
+	private void TeleporttoEdgeville() {
+		final WidgetChild SKILL_TAB = Widgets.get(275, 16);
+		if (SKILL_TAB.validate() && !SKILL_TAB.visible()) {
+			final WidgetChild OPEN_SKILL_TAB = Widgets.get(548, 114);
+			status="Interacting with Ability Book";
+			if (OPEN_SKILL_TAB.validate()
+					&& OPEN_SKILL_TAB.interact("Ability Book")) {
+				Task.sleep(300, 600);
+			}
+		}
+		final WidgetChild MAGIC_TAB = Widgets.get(275, 62);
+		if (MAGIC_TAB.validate() && !MAGIC_TAB.visible()) {
+			final WidgetChild OPEN_MAGIC_TAB = Widgets.get(275, 40);
+			status="Interacting with the Magic Button";
+			if (OPEN_MAGIC_TAB.validate() && OPEN_MAGIC_TAB.interact("Magic")) {
+				Task.sleep(300, 600);
+			}
+		}
+		final WidgetChild TELEPORT_TAB = Widgets.get(275, 38);
+		if (TELEPORT_TAB.validate() && !TELEPORT_TAB.visible()) {
+			final WidgetChild OPEN_TELEPORT_TAB = Widgets.get(275, 46);
+			status="Validating Spells";
+			if (OPEN_TELEPORT_TAB.validate()
+					&& OPEN_TELEPORT_TAB.interact("Teleport-spells")) {
+				Task.sleep(300, 600);
+			}
+		}
+		final WidgetChild LODESTONE_BUTTON = Widgets.get(275, 16).getChild(155);
+		if (LODESTONE_BUTTON.validate() && LODESTONE_BUTTON.visible())
+			status="Teleporting to Edgeville";
+		if (LODESTONE_BUTTON.interact("Cast")) {
+			Task.sleep(800, 1200);
+		}
+		final WidgetChild DESTINATION_CHOOSE = Widgets.get(1092, 0);
+		if (DESTINATION_CHOOSE.validate() && DESTINATION_CHOOSE.visible()) {
+			final WidgetChild DESTINATION_BUTTON = Widgets.get(1092, 45); //Edgeville 
+			if (DESTINATION_BUTTON.validate() && DESTINATION_BUTTON.visible()) {
+				if (DESTINATION_BUTTON.interact("Teleport")) {
+					Task.sleep(2000, 3000);
+					final Timer TIMEOUT = new Timer(15000);
+					while (TIMEOUT.isRunning() && !Players.getLocal().isIdle()) {
+						Task.sleep(50, 100);
+					}
+				}
+			}
+		}
 	}
 
 	@SuppressWarnings("unused")
@@ -353,7 +438,6 @@ public class CowKiller extends ActiveScript implements PaintListener,
 	}
 
 	private void Loot() {
-		GroundItem loot = GroundItems.getNearest(Lootid);
 		if (loot != null) {
 			status = "We see the Loot";
 			if (loot.isOnScreen()) {
@@ -368,6 +452,7 @@ public class CowKiller extends ActiveScript implements PaintListener,
 			} else {
 				Walking.walk(loot.getLocation());
 				Camera.turnTo(loot.getLocation());
+				Random.nextInt(1000,9000);
 			}
 		}
 	}
@@ -375,15 +460,15 @@ public class CowKiller extends ActiveScript implements PaintListener,
 	private void Attackcows() {
 		if (!Players.getLocal().isInCombat()) {
 			status = "Looking for Cow!";
-			if (Cow != null);
+			if (Monster != null);
 			status = "We See the Cow!";
-			if (NPCs.getNearest(Cow).isOnScreen()) {
+			if (Monster.isOnScreen()) {
 				status = "Checking to see if we are in Combat";
-				if (!NPCs.getNearest(Cow).isInCombat()) {
+				if (!Monster.isInCombat()) {
 					status = "We Should Be Attacking them Now";
-					NPCs.getNearest(Cow).interact("Attack");
+					Monster.interact("Attack");
 					sleep(Random.nextInt(2500, 0));
-				} else if (!NPCs.getNearest(Cow).isOnScreen()) {
+				} else if (!Monster.isOnScreen()) {
 					Camera.setPitch(75);
 				}
 			}
