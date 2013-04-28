@@ -128,6 +128,7 @@ public class CowKiller extends ActiveScript implements PaintListener,
 		g.drawString("Time running: " + hours + ":" + minutes + ":" + seconds,
 				30, 402);
 		g.drawString("Status: " + status, 33, 421);
+		g.drawString("Deaths:"+dieCount, 39,377);
 		g.setFont(font2);
 		g.setColor(color3);
 		g.fillRoundRect(19, 323, 491, 3, 16, 16);
@@ -236,7 +237,7 @@ public class CowKiller extends ActiveScript implements PaintListener,
 		if(Bank.isOpen()) {
 			Bank.depositInventory();
 			Bank.close();
-			if(Bank.close()) {
+			if(Inventory.getCount()<28) {
 				TeleporttoLumbridge();
 				Walking.newTilePath(path).traverse();
 			}
@@ -374,8 +375,7 @@ public class CowKiller extends ActiveScript implements PaintListener,
 	private void Attackcows() {
 		if (!Players.getLocal().isInCombat()) {
 			status = "Looking for Cow!";
-			if (Cow != null)
-				;
+			if (Cow != null);
 			status = "We See the Cow!";
 			if (NPCs.getNearest(Cow).isOnScreen()) {
 				status = "Checking to see if we are in Combat";
