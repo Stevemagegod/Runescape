@@ -32,18 +32,13 @@ import org.powerbot.game.api.wrappers.node.GroundItem;
 import org.powerbot.game.api.wrappers.node.Item;
 import org.powerbot.game.api.wrappers.widget.WidgetChild;
 
-@Manifest(authors = ("Graser"), name = "Cow Killer", description = "Kills Cows", version = 0.1)
+@Manifest(authors = ("Xianb"), name = "Cow Killer", description = "Kills Cows and uses the Lodestone Network to Bank", version = 0.1)
 public class CowKiller extends ActiveScript implements PaintListener,
 MessageListener {
-
-	/**
-	 * @param args
-	 */
 
 	// Variables
 	final int BONES = 526;
 	final int Lootid[] = { 1739,526 };
-	final int LumbridgeCowsGate[] = { 45212, 45210 };
 	int dieCount = 0;
 	private final Color color1 = new Color(0, 0, 0);
 	private final Color color2 = new Color(0, 204, 255);
@@ -56,7 +51,6 @@ MessageListener {
 	public long startTime = System.currentTimeMillis();
 	public String status;
 	String Lastmessage;
-
 	
 	//Walking
 	public final Tile[] Bankpath = {
@@ -203,15 +197,24 @@ MessageListener {
 	}
 
 	private void Bury() {
-		for (Item i : Inventory.getItems()) // The for statement using 3
-			// Variables Item, I, and
-			// Inventory.getitems()
+		for (Item i : Inventory.getItems()) 
 		{
-			if (i.getId() == BONES) // if i equals Bone
+			if (i.getId() == BONES) 
 			{
 				status = "Burying Bones";
-				i.getWidgetChild().interact("Bury"); // we will bury the bone
-				sleep(Random.nextInt(500, 1000)); // then sleep.
+				i.getWidgetChild().interact("Bury"); 
+				sleep(Random.nextInt(500, 1000)); 
+			}
+		}
+	}
+
+	private void claimTicket() {
+		status = "Scanning for claim";
+		final Item item = Inventory.getItem(24154);
+		if (item != null && item.getWidgetChild().click(true)) {
+			final Timer t = new Timer(2500);
+			while (t.isRunning() && Inventory.getCount(24154) > 0) {
+				sleep(50);
 			}
 		}
 	}
@@ -353,15 +356,16 @@ MessageListener {
 		g.fillRect(p.x + 1, p.y + 1, w - (p.x + 1), h - (p.y - 1));
 	}
 
+
 	public void onStart() {
 		if (Game.isLoggedIn())
 			status = "Hello World";
-		else if (!Game.isLoggedIn()) {
+		claimTicket();
+		if (!Game.isLoggedIn()) {
 			status = "Not Logged in";
 		}
 		return;
 	}
-
 
 	public void onStop() {
 		status = "Thank you for using my script";
