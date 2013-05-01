@@ -31,28 +31,28 @@ import org.powerbot.game.api.wrappers.node.SceneObject;
 
 @Manifest(authors = ("Graser"), name = "Task", description = "AIO Achievement Diary Script", version = 0.1)
 public class Task extends ActiveScript implements PaintListener,MessageListener {
-	private final int Monsters[] = { 12362, 12364, 12363, 12365,12348,8828 };
-	private final int Cowhide = 1739;
+	final int monsters[] = { 12362, 12364, 12363, 12365,12348,8828 };
+	private final int cowdide = 1739;
 	public String status;
-	final int SoftLeather = 1741;
-	final int RawRatMeet = 2134;
+	final int softLeather = 1741;
+	final int rawRatMeet = 2134;
 	int minMilliSecond = 500;
 	int maxMillisecond = 50000;
 	int x=Random.nextInt(1,450);
 	int y=Random.nextInt(1,450);
-	final int RawPike=349;
-	final int LeatherGloves=1059;
-	final int CoalOre=453;
+	final int rawPike=349;
+	final int leatherGloves=1059;
+	final int coalOre=453;
 	int randomX= Random.nextInt(1,300);
 	int randomY=Random.nextInt(1,300);
-	int IronOreRock[] = { 37309, 37307 };
-	final int IronOre=440;
-	final int DeadTree[] = {9388,9887,9366,9354,3300};
-	final int Log=1511;
-	final int SteelBarMaterial[] = {453,440};
-	int FishingSpot=329;
+	int ironOreRock[] = { 37309, 37307 };
+	final int ironOre=440;
+	final int deadTree[] = {9388,9887,9366,9354,3300};
+	final int log=1511;
+	final int steelBarMaterial[] = {453,440};
+	int fishingSpot=329;
 	final int Fire=70755;
-	final int FishingSupplies[] = {313,309};
+	final int fishingSupplies[] = {313,309};
 	private final Color color1 = new Color(0, 0, 0);
 	private final Color color2 = new Color(0, 204, 255);
 	private final Color color3 = new Color(0, 255, 0);
@@ -60,7 +60,6 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 	private final Font font2 = new Font("Cambria", 1, 17);
 	public long startTime = System.currentTimeMillis();
 	public long millis;
-	public static final int AL_KHARID = 40;
 	private static final Color MOUSE_COLOR = new Color(0, 255, 255),MOUSE_BORDER_COLOR = new Color(220, 220, 220),MOUSE_CENTER_COLOR = new Color(89, 255, 89);
 
 	//Areas
@@ -175,16 +174,16 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 			sleep(2000);
 			if (!(Players.getLocal().getInteracting() != null)) {
 				LootCowhide();
-				if(Inventory.getCount(Cowhide)==1) {
+				if(Inventory.getCount(cowdide)==1) {
 					status="Go get these tanned";
 				}
 			}
 		}
 		if(atTanningStore()) {
 			TanHides();
-			if(Inventory.getCount(SoftLeather)==1) {
+			if(Inventory.getCount(softLeather)==1) {
 				Craft();
-				if(Inventory.getCount(LeatherGloves)==1) {
+				if(Inventory.getCount(leatherGloves)==1) {
 					status="We got gloves doing next task.....";
 				}
 			}
@@ -192,27 +191,27 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 		if(atDesertMineingSpot()) {
 			if(!Players.getLocal().isInCombat())  {
 				Mine();
-				if(Inventory.getCount(LeatherGloves)==1) {
+				if(Inventory.getCount(leatherGloves)==1) {
 					status="We got the ore doing next task.....";
 				}
 			}
 		}
 		if(atFishingSpot()) {
-			if(Inventory.contains(FishingSupplies))
+			if(Inventory.contains(fishingSupplies))
 				Fish();
 		}
-		if(atSmithingSpot() && Inventory.contains(SteelBarMaterial)) {
+		if(atSmithingSpot() && Inventory.contains(steelBarMaterial)) {
 			Smith();
 		}
 		if(inLumbridgeSwamp()) {
 			OpenDoor();
 			if(inDoor()) {
 				Attack();
-				if(Inventory.contains(RawRatMeet)) {
+				if(Inventory.contains(rawRatMeet)) {
 					Chop();
-					if(Inventory.contains(Log)) {
+					if(Inventory.contains(log)) {
 						Firemake();
-						if(!Inventory.contains(Log)) {
+						if(!Inventory.contains(log)) {
 							Cook();
 						}
 					}
@@ -254,7 +253,7 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 	}
 
 	public void Chop() {
-		SceneObject tree = SceneEntities.getNearest(DeadTree);
+		SceneObject tree = SceneEntities.getNearest(deadTree);
 		while (Players.getLocal().getAnimation() == -1) {
 			if (tree != null) {
 				if (tree.isOnScreen()) {
@@ -271,7 +270,7 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 	}
 
 	private void Firemake() {
-		Inventory.getItem(Log).getWidgetChild().interact("Craft");
+		Inventory.getItem(log).getWidgetChild().interact("Craft");
 		status="Making Fire";
 		Mouse.move(158,250);
 		sleep(2000);
@@ -318,7 +317,7 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 	}
 
 	private void Fish() {
-		NPC fishingspot = NPCs.getNearest(FishingSpot);
+		NPC fishingspot = NPCs.getNearest(fishingSpot);
 		if (fishingspot != null) {
 			if (fishingspot.isOnScreen()) {
 				if(!(Players.getLocal().getInteracting() != null))
@@ -333,7 +332,7 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 	}
 
 	private void Mine() {
-		SceneObject mine = SceneEntities.getNearest(IronOreRock);
+		SceneObject mine = SceneEntities.getNearest(ironOreRock);
 		while (Players.getLocal().getAnimation() == -1) {
 			if (mine != null) {
 				if (mine.isOnScreen()) {
@@ -357,7 +356,7 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 
 	private void Craft() {
 		status="Crafting Leather";
-		Inventory.getItem(SoftLeather).getWidgetChild().interact("Craft");
+		Inventory.getItem(softLeather).getWidgetChild().interact("Craft");
 		status="Chooseing a Tool";
 		Mouse.move(275,230);
 		sleep(2000);
@@ -434,7 +433,7 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 	}
 
 	public void LootCowhide() {
-		GroundItem loot = GroundItems.getNearest(Cowhide);
+		GroundItem loot = GroundItems.getNearest(cowdide);
 		if (loot != null) {
 			status = "We see the Loot";
 			if (loot.isOnScreen()) {
@@ -456,15 +455,15 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 	public void Attack() {
 		if (!Players.getLocal().isInCombat()) {
 			status = "Looking for Monsters!";
-			if (Monsters != null);
+			if (monsters != null);
 			status = "We See the Monsters!";
-			if (NPCs.getNearest(Monsters).isOnScreen()) {
+			if (NPCs.getNearest(monsters).isOnScreen()) {
 				status = "Checking to see if we are in Combat";
-				if (!NPCs.getNearest(Monsters).isInCombat()) {
+				if (!NPCs.getNearest(monsters).isInCombat()) {
 					status = "We Should Be Attacking them Now";
-					NPCs.getNearest(Monsters).interact("Attack");
+					NPCs.getNearest(monsters).interact("Attack");
 					sleep(Random.nextInt(2500, 0));
-				} else if (!NPCs.getNearest(Monsters).isOnScreen()) {
+				} else if (!NPCs.getNearest(monsters).isOnScreen()) {
 					Camera.setPitch(75);
 				}
 			}
