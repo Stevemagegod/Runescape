@@ -62,6 +62,7 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 	int Beam[] = {79568,12012,79758,79770,79769};
 	int Essence[] = {556,2491};
 	String Lastmessage;
+	int tasks=0; 
 	boolean left = false;
 	int CombatAnimation = 18241;
 	int TeleportationAnimation=18927;
@@ -126,6 +127,8 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 			new Tile(3102, 3172, 0), new Tile(3102, 3167, 0), new Tile(3102, 3163, 0), 
 			new Tile(3102, 3160, 0), new Tile(3102, 3158, 0) };
 	public final Tile[] ToEllis = {new Tile(3280,3192, 0), new Tile(3274,3197, 0),};
+	public final Tile[] ToMine = {new Tile(3286,3209, 0), new Tile(3282,3228, 0),new Tile(3291,3243, 0), new Tile(3295,3260, 0),
+			new Tile(3299,3275, 0), new Tile(3299,3286, 0)};
 
 	//People
 	final int Ellis=2824;
@@ -395,71 +398,73 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 			else
 				if(Inventory.contains(cowhide)) {
 					TeleporttoDesert();
-						if(atDesertLodestone())
-							status="Walking to Ellis";
-							Walking.newTilePath(ToEllis).traverse();
+					if(atDesertLodestone())
+						status="Walking to Ellis";
+					Walking.newTilePath(ToEllis).traverse();
 				}
 		if(atTanningStore()) {
 			TanHides();
-			if(Inventory.contains(softLeather)) {
-				Craft();
-				if(Inventory.contains(leatherGloves)) {
-					status="We got gloves doing next task.....";
-				}
-			}
-			if(atDesertMineingSpot()) {
-				status="Checking if those Fucking Scorpions aren't attacking us";
-				if(!Players.getLocal().isInCombat())  {
-					Mine();
-					if(Inventory.contains(ironOre)) {
-						status="We got the ore doing next task.....";
-					}
-				}
-			}
-			if(atFishingSpot()) {
-				status="Checking if are Inventory Contains are fishing Supplies";
-				if(Inventory.contains(fishingSupplies))
-					Fish();
-			}
-			if(atSmithingSpot() && Inventory.contains(steelBarMaterial)) {
-				Smith();
-			}
-			if(inLumbridgeSwamp()) {
-				OpenDoor();
-				Attack();
-				status="Checking if are Inventory Contains some Raw Rat Meet";
-				if(Inventory.contains(rawRatMeet)) {
-					Chop();
-					status="Checking if are Inventory Contains some Logs";
-					if(Inventory.contains(log)) {
-						Firemake();
-						status="Checking if are Inventory does not contain any Logs";
-						if(!Inventory.contains(log)) {
-							Cook();
-						}
-					}
-				}
-			}
-			if(atWaterTemple()) {
-				status="Checking if are Equipment Contains a Water Tiara";
-				if(Equipment.containsOneOf(WaterTiara)) {
-					Enterit();
-					status="Checking if we are in the Temple";
-					if(Lastmessage.contains("You feel a powerful force take hold of you."))
-						CraftRunes();
-				}
-			}
-			if(atPriestHouse()) {
-				TalktoPriest();
-				if(Inventory.contains(GhostSpeakAmulet)) {
-					Walking.newTilePath(ToWizardsTower).traverse();
-				}
-				Ascend();
-				TauntDemon();
-			}
-			return Random.nextInt(25,50);
 		}
-		return 0;
+		else
+			if(Inventory.contains(softLeather)) {
+				Craft(); //The Loop Works up to here Flawlessly. //TODO
+			}
+			else
+				if(Inventory.contains(leatherGloves)) {
+					status="Walking to Mine";
+					Walking.newTilePath(ToMine).traverse();
+				}
+		if(atDesertMineingSpot()) {
+			status="Checking if those Fucking Scorpions aren't attacking us";
+			if(!Players.getLocal().isInCombat())  {
+				Mine();
+				if(Inventory.contains(ironOre)) {
+					status="We got the ore doing next task.....";
+				}
+			}
+		}
+		if(atFishingSpot()) {
+			status="Checking if are Inventory Contains are fishing Supplies";
+			if(Inventory.contains(fishingSupplies))
+				Fish();
+		}
+		if(atSmithingSpot() && Inventory.contains(steelBarMaterial)) {
+			Smith();
+		}
+		if(inLumbridgeSwamp()) {
+			OpenDoor();
+			Attack();
+			status="Checking if are Inventory Contains some Raw Rat Meet";
+			if(Inventory.contains(rawRatMeet)) {
+				Chop();
+				status="Checking if are Inventory Contains some Logs";
+				if(Inventory.contains(log)) {
+					Firemake();
+					status="Checking if are Inventory does not contain any Logs";
+					if(!Inventory.contains(log)) {
+						Cook();
+					}
+				}
+			}
+		}
+		if(atWaterTemple()) {
+			status="Checking if are Equipment Contains a Water Tiara";
+			if(Equipment.containsOneOf(WaterTiara)) {
+				Enterit();
+				status="Checking if we are in the Temple";
+				if(Lastmessage.contains("You feel a powerful force take hold of you."))
+					CraftRunes();
+			}
+		}
+		if(atPriestHouse()) {
+			TalktoPriest();
+			if(Inventory.contains(GhostSpeakAmulet)) {
+				Walking.newTilePath(ToWizardsTower).traverse();
+			}
+			Ascend();
+			TauntDemon();
+		}
+		return Random.nextInt(25,50);
 	}
 
 	private boolean atDesertLodestone() {
@@ -467,19 +472,19 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 	}
 
 	private void TeleporttoDesert() {
-			status="Opening Ability Book";
-			Tabs.ABILITY_BOOK.open();
-			if(Tabs.ABILITY_BOOK.isOpen()) {
-				status="Casting Home Teleport";
-				Mouse.move(580, 359);
-				Mouse.click(true);
-				status="Sleeping for 2 Seconds";
-				sleep(2000);
-				status="Teleporting to Desert";
-				Mouse.move(360,279);
-				Mouse.click(true);
-				sleep(10000);
-			}
+		status="Opening Ability Book";
+		Tabs.ABILITY_BOOK.open();
+		if(Tabs.ABILITY_BOOK.isOpen()) {
+			status="Casting Home Teleport";
+			Mouse.move(580, 359);
+			Mouse.click(true);
+			status="Sleeping for 2 Seconds";
+			sleep(2000);
+			status="Teleporting to Desert";
+			Mouse.move(360,279);
+			Mouse.click(true);
+			sleep(10000);
+		}
 	}
 
 	public void loot() {
@@ -503,7 +508,9 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 
 	@Override
 	public void messageReceived(MessageEvent arg0) {
-		// TODO Auto-generated method stub
+		if (Lastmessage.contains("Congraulations you just ")) {
+			tasks++;
+		}
 
 	}
 
@@ -547,9 +554,9 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 		g.setFont(font1);
 		g.setColor(color1);
 		g.drawString("Skeleton by Graser", 29, 357);
-		g.drawString("Time running: " + hours + ":" + minutes + ":" + seconds,
-				30, 402);
+		g.drawString("Time running: " + hours + ":" + minutes + ":" + seconds,30, 402);
 		g.drawString("Status: " + status, 33, 421);
+		g.drawString("Tasks Compleated: " + tasks, 35,378);
 		g.setFont(font2);
 		g.setColor(color3);
 		g.fillRoundRect(19, 323, 491, 3, 16, 16);
@@ -572,10 +579,9 @@ public class Task extends ActiveScript implements PaintListener,MessageListener 
 	public void onSart() {
 		if(Game.isLoggedIn())
 			status="Hello World";
-		else
-			if(!Game.isLoggedIn()) {
-				status="Not Logged in";
-			}
+		if(!Game.isLoggedIn()) {
+			status="Not Logged in";
+		}
 	}
 
 	public void onStop() {
