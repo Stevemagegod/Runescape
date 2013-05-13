@@ -1,3 +1,4 @@
+package grasersTasks;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -12,30 +13,26 @@ import org.powerbot.core.event.events.MessageEvent;
 import org.powerbot.core.event.listeners.MessageListener;
 import org.powerbot.core.event.listeners.PaintListener;
 import org.powerbot.game.api.Manifest;
+import org.powerbot.game.api.methods.Environment;
 import org.powerbot.game.api.methods.Game;
 import org.powerbot.game.api.methods.input.Mouse;
 
-@Manifest(authors = ("Graser"), name = "", description = "", version = 2)
-public class Skeleton extends org.powerbot.core.script.ActiveScript implements PaintListener, MessageListener {
+@Manifest(authors = ("Graser"), name = " ", description = " ", version = 1)
+public class Main extends org.powerbot.core.script.ActiveScript implements PaintListener, MessageListener {
 	public long startTime = System.currentTimeMillis();
 	public String status;
 	public long millis;
+	private final Color color1 = new Color(0, 0, 0);
+	private final Color color2 = new Color(0, 204, 255);
+	private final Color color3 = new Color(0, 255, 0);
+	private final Font font1 = new Font("Cambria", 1, 20);
+	private final Font font2 = new Font("Cambria", 1, 17);
 	private static final Color MOUSE_COLOR = new Color(0, 255, 255),MOUSE_BORDER_COLOR = new Color(220, 220, 220),MOUSE_CENTER_COLOR = new Color(89, 255, 89);
 
 	@Override
-	public void messageReceived(MessageEvent arg0) {
-		// TODO Auto-generated method stub
-		
+	public void messageReceived(MessageEvent e) {
+		//TODO
 	}
-
-	//START: Code generated using Enfilade's Easel
-
-		private final Color color1 = new Color(0, 0, 0);
-		private final Color color2 = new Color(0, 204, 255);
-		private final Color color3 = new Color(0, 255, 0);
-
-		private final Font font1 = new Font("Cambria", 1, 20);
-		private final Font font2 = new Font("Cambria", 1, 17);
 
 		public void onRepaint(Graphics g1) {
 			Graphics2D g = (Graphics2D)g1;
@@ -99,14 +96,10 @@ public class Skeleton extends org.powerbot.core.script.ActiveScript implements P
 			spinG2.drawLine(p.x - 5, p.y, p.x + 5, p.y);
 			spinG2.drawLine(p.x, p.y - 5, p.x, p.y + 5);
 		}
-	
+
 	public void onStart(){
 		if (Game.isLoggedIn()) {
-			status = "Hello";
-		}
-		if (!Game.isLoggedIn()) {
-			status="NOT logged in";
-			stop();
+			status = "Hello "+Environment.getDisplayName();
 		}
 	}
 
