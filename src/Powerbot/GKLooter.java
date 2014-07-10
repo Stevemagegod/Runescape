@@ -1,4 +1,5 @@
 import java.awt.Graphics;
+
 import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Random;
@@ -28,6 +29,7 @@ PaintListener {
     public final static int stiles = 11267;
     public final static int lootid[] = { 377, 371, 359 };
     public final static int fishingSpot = 323;
+    public int[] Monsters = {107,708,411,128, 132};
 
     @Override
     public void poll() {
@@ -36,29 +38,29 @@ PaintListener {
 	}
 	else
 	    if (ctx.backpack.select().size() == 28) {
-		status = "Walking";
-		walkToStiles().traverse();
+		Exchange();
+		if (ctx.backpack.select().size()<28) {
+		    walkToDock().traverse();
+		}
 	    }
-	Exchange();
-	try {
-	    Thread.sleep(1200);
-	} catch (InterruptedException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
     }
 
-    @SuppressWarnings("deprecation")
     private void Exchange() {
-	Npc Man = ctx.npcs.id(stiles).peek();
-	Man.interact(false, "Exchange");
-	ctx.mouse.move(Random.nextInt(-20, 700), Random.nextInt(-20, 700));
-	status = "Exchanging";
-	if(Man.click(true)) {
-	    status = "Walking Back to Spot";
-	    if(ctx.players.local().idle() || ctx.backpack.size() <28) {
-	    walkToDock().traverse();
+	if (ctx.npcs.id(stiles).nearest() != null) {
+	    status = "Walking to Stiles";
+	    walkToStiles().traverse();
+	    try {
+		Thread.sleep(1500);
+	    } catch (InterruptedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
 	    }
+	}
+	Npc Man = ctx.npcs.select().id(stiles).peek();
+	if(Man.valid()) {
+	    Man.interact(false, "Exchange");
+	    ctx.input.move(Random.nextInt(-20, 700), Random.nextInt(-20, 700));
+	    status = "Exchanging";
 	}
     }
 
@@ -73,7 +75,7 @@ PaintListener {
     }
 
     public Path walkToDock() {
-	return ctx.movement.newTilePath(pathToDock());
+	return ctx.movement.newTilePath(pathToDock()).reverse();
     }
 
     public Path walkToStiles() {
@@ -82,12 +84,21 @@ PaintListener {
 
     private void loot() {
 	GroundItem Loot = ctx.groundItems.id(lootid).peek(); {
-	    status = "Looting "+Loot.name();
-	    Loot.interact("Take");
-	    if(ctx.groundItems.count() > 5) {
-		Loot.click(true);
-		ctx.camera.pitch(true);
+	    if(ctx.groundItems.nearest().id(lootid) != null) {
+		if(ctx.groundItems.nearest().id(lootid).peek().inViewport()) 
+		    status = "Looting "+Loot.name();
+		Loot.interact("Take");
+		try {
+		    Thread.sleep(1200);
+		} catch (InterruptedException e) {
+		    Random.nextInt(2000, 1000);
+		    e.printStackTrace();
+		}
 	    }
+	    else
+		if(ctx.groundItems.count() > 5) {
+		    Loot.click(true);
+		}
 	}
     }
 
@@ -101,7 +112,8 @@ PaintListener {
 	long seconds = millis / 1000;
 	g.drawString("GKLooter by: Xianb", 36, 412);
 	g.drawString("Version: 1", 44, 384);
-	g.drawString("Time running: " + hours + ":" + minutes + ":" + seconds,34, 367);
+	g.drawString("Time running: " + hours + ":" + minutes + ":" + seconds,
+		34, 367);
 	g.drawString("Status: " + status, 35, 444);
     }
 
